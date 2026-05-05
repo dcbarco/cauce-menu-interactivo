@@ -1,9 +1,4 @@
-import { createClient } from '@vercel/kv';
-
-const kv = createClient({
-  url: process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+import { createClient } from 'redis';
 
 export default async function handler(req, res) {
   // Configurar CORS básico por si acaso
@@ -21,11 +16,23 @@ export default async function handler(req, res) {
   
   try {
     const payload = req.body;
+    
+    // Connect to standard Redis using REDIS_URL
+    const client = createClient({
+      url: process.env.REDIS_URL
+    });
+    
+    client.on('error', (err) => console.log('Redis Client Error', err));
+    await client.connect();
+
     // Guardar el payload entero bajo la llave 'cauce_state'
-    await kv.set('cauce_state', payload);
+    await client.set('cauce_state', JSON.stringify(payload));
+    
+    await client.disconnect();
+
     return res.status(200).json({ success: true });
   } catch (error) {
-    console.error('Error saving to KV:', error);
+    console.error('Error saving to Redis:', error);
     return res.status(500).json({ error: 'Failed to save data' });
   }
 }
