@@ -268,6 +268,7 @@ export default function AdminPanel() {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [cornerClicks, setCornerClicks] = useState([]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -291,6 +292,31 @@ export default function AdminPanel() {
 
   const editingNode = nodes.find(n => n.id === editingId);
   const draggedNode = nodes.find(n => n.id === draggedNodeId);
+
+  // Handle corner clicks for secret admin access
+  const handleCornerClick = (cornerIndex) => {
+    // 0: Top-Left, 1: Top-Right, 2: Bottom-Right, 3: Bottom-Left
+    const newClicks = [...cornerClicks, cornerIndex];
+    
+    // Keep only the last 4 clicks
+    if (newClicks.length > 4) {
+      newClicks.shift();
+    }
+    
+    setCornerClicks(newClicks);
+
+    // Check if the sequence is 0 -> 1 -> 2 -> 3
+    if (
+      newClicks.length === 4 &&
+      newClicks[0] === 0 &&
+      newClicks[1] === 1 &&
+      newClicks[2] === 2 &&
+      newClicks[3] === 3
+    ) {
+      setShowPasswordGate(true);
+      setCornerClicks([]); // Reset sequence
+    }
+  };
 
   const handleAdminClick = () => {
     if (isAdminMode) {
@@ -358,17 +384,15 @@ export default function AdminPanel() {
 
   return (
     <div className="pointer-events-auto">
-      {/* Admin toggle button (top-right) */}
-      <button
-        onClick={handleAdminClick}
-        className={`fixed top-4 right-4 z-50 glass-panel px-3 py-2 flex items-center gap-2 text-xs font-mono uppercase tracking-wider transition-all
-          ${isAdminMode ? 'border-orange-500/30 text-orange-400 admin-pulse' : 'text-white/30 hover:text-white/60'}`}
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
-        </svg>
-        {isAdminMode ? 'Admin ON' : 'Admin'}
-      </button>
+      {/* Invisible gesture zones for admin access (Top-Left, Top-Right, Bottom-Right, Bottom-Left) */}
+      {!isAdminMode && (
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          <div className="absolute top-0 left-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(0)} />
+          <div className="absolute top-0 right-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(1)} />
+          <div className="absolute bottom-0 right-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(2)} />
+          <div className="absolute bottom-0 left-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(3)} />
+        </div>
+      )}
 
       {/* Password Gate */}
       <AnimatePresence>
