@@ -93,12 +93,11 @@ export default function Sidebar() {
     >
       {/* Header */}
       <div className="mb-4">
-        <h1 className="font-grotesk text-2xl font-bold tracking-tight text-white">
-          CAUCE
-        </h1>
-        <p className="text-[11px] font-mono uppercase tracking-[0.2em] mt-0.5 text-white/40">
-          Circuito Interactivo
-        </p>
+        <img 
+          src="/logo/logo cauce blanco completo.png" 
+          alt="CAUCE menú interactivo" 
+          className="w-full h-auto max-w-[160px] sm:max-w-[190px] md:max-w-[220px] object-contain"
+        />
       </div>
 
       {/* Station List (compact scrollable) */}
