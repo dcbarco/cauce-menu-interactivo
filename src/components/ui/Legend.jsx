@@ -5,6 +5,7 @@ import { CATEGORIES } from '../../config/constants';
 export default function Legend() {
   const activeCategory = useStore(s => s.activeCategory);
   const setActiveCategory = useStore(s => s.setActiveCategory);
+  const isDarkMode = useStore(s => s.isDarkMode);
 
   useEffect(() => {
     if (!activeCategory) return;
@@ -37,23 +38,33 @@ export default function Legend() {
   }, [activeCategory]);
 
   return (
-    <div className="pointer-events-auto glass-panel px-5 py-3 flex items-center gap-1.5 w-[90vw] md:w-auto overflow-x-auto no-scrollbar">
-      <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest mr-3 flex-shrink-0">
+    <div className={`pointer-events-auto px-5 py-3 flex items-center gap-1.5 w-[90vw] md:w-auto overflow-x-auto no-scrollbar ${
+      isDarkMode
+        ? 'glass-panel'
+        : 'legend-light'
+    }`}>
+      <span className={`text-[10px] font-mono uppercase tracking-widest mr-3 flex-shrink-0 ${
+        isDarkMode ? 'text-white/30' : 'text-white/70'
+      }`}>
         Categorías:
       </span>
       {Object.entries(CATEGORIES).map(([key, cat], index) => (
         <React.Fragment key={key}>
           {index > 0 && (
-            <span className="text-white/10 text-[10px] mx-0.5">|</span>
+            <span className={`text-[10px] mx-0.5 ${isDarkMode ? 'text-white/10' : 'text-white/30'}`}>|</span>
           )}
           <button
             onClick={() => setActiveCategory(key)}
             className={`text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-lg transition-all duration-200 whitespace-nowrap
-              ${activeCategory === key
-                ? 'text-white glass-panel-subtle'
-                : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+              ${isDarkMode
+                ? (activeCategory === key
+                  ? 'text-white glass-panel-subtle'
+                  : 'text-white/40 hover:text-white/70 hover:bg-white/5')
+                : (activeCategory === key
+                  ? 'bg-white text-orange-600 font-semibold rounded-full'
+                  : 'text-white/80 hover:text-white hover:bg-white/15 rounded-full')
               }`}
-            style={activeCategory === key ? { color: cat.color, boxShadow: `0 0 12px ${cat.color}20` } : {}}
+            style={isDarkMode && activeCategory === key ? { color: cat.color, boxShadow: `0 0 12px ${cat.color}20` } : {}}
           >
             {cat.label}
           </button>

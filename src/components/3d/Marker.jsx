@@ -6,7 +6,8 @@ import { useStore } from '../../store/useStore';
 import { CATEGORIES, SCENE, ICON_PATHS } from '../../config/constants';
 import Tooltip from '../ui/Tooltip';
 
-function MarkerIcon({ type, scale = 1, isSelected, isGhost }) {
+/* ===== Dark Mode Marker: circular with glow ring ===== */
+function MarkerIconDark({ type, scale = 1, isSelected, isGhost }) {
   const cat = CATEGORIES[type] || CATEGORIES.PORTATIL;
   const color = isGhost ? '#666' : (isSelected ? '#ffffff' : cat.color);
   const bgOpacity = isGhost ? 0.15 : (isSelected ? 0.95 : 0.6);
@@ -48,16 +49,75 @@ function MarkerIcon({ type, scale = 1, isSelected, isGhost }) {
   );
 }
 
+/* ===== Light Mode Marker: rounded square with speech bubble pointer ===== */
+function MarkerIconLight({ type, scale = 1, isSelected, isGhost }) {
+  const cat = CATEGORIES[type] || CATEGORIES.PORTATIL;
+  const markerColor = isGhost ? '#999' : (cat.color || '#e86c1a');
+  const bgOpacity = isGhost ? 0.3 : (isSelected ? 1.0 : 0.85);
+
+  return (
+    <group scale={[scale, scale, scale]}>
+      {/* Rounded square background */}
+      <mesh>
+        <planeGeometry args={[1.1, 1.1]} />
+        <meshBasicMaterial
+          color={markerColor}
+          transparent
+          opacity={bgOpacity}
+        />
+      </mesh>
+      {/* Selection border glow */}
+      {isSelected && (
+        <mesh>
+          <planeGeometry args={[1.25, 1.25]} />
+          <meshBasicMaterial
+            color={'#ffffff'}
+            transparent
+            opacity={0.3}
+          />
+        </mesh>
+      )}
+      {/* Bottom triangle pointer (speech bubble tail) */}
+      <mesh position={[0, -0.7, 0]}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={3}
+            array={new Float32Array([
+              -0.15, 0.15, 0,
+              0.15, 0.15, 0,
+              0, -0.15, 0
+            ])}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <meshBasicMaterial
+          color={markerColor}
+          transparent
+          opacity={bgOpacity}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function MarkerTooltip({ node }) {
   const cat = CATEGORIES[node.type] || CATEGORIES.PORTATIL;
+  const isDarkMode = useStore.getState().isDarkMode;
+  
   return (
-    <div className="tooltip-3d glass-panel px-4 py-2.5 min-w-[140px] text-center cursor-pointer select-none"
+    <div className={`tooltip-3d px-4 py-2.5 min-w-[140px] text-center cursor-pointer select-none ${
+      isDarkMode ? 'glass-panel' : 'tooltip-light'
+    }`}
          style={{ borderRadius: '14px' }}>
       <p className="text-[10px] font-mono uppercase tracking-widest mb-0.5"
-         style={{ color: cat.color }}>
+         style={{ color: isDarkMode ? cat.color : '#e86c1a' }}>
         {cat.label}
       </p>
-      <p className="text-sm font-grotesk font-semibold text-white/90 leading-tight">
+      <p className={`text-sm font-grotesk font-semibold leading-tight ${
+        isDarkMode ? 'text-white/90' : 'text-gray-800'
+      }`}>
         {node.tooltipTitle}
       </p>
     </div>
@@ -78,6 +138,7 @@ export default function Marker({ node }) {
   const selectNode = useStore(s => s.selectNode);
   const updateNode = useStore(s => s.updateNode);
   const setDraggedNode = useStore(s => s.setDraggedNode);
+  const isDarkMode = useStore(s => s.isDarkMode);
 
   const { camera, raycaster, pointer, gl } = useThree();
 
@@ -177,6 +238,10 @@ export default function Marker({ node }) {
   const showHoverTooltip = !isNodeEditMode && !isDragging && hovered && !isSelected;
   const showFullTooltip = !isNodeEditMode && !isDragging && isSelected;
 
+  const cat = CATEGORIES[node.type] || {};
+  const catColor = cat.color || '#4fc3f7';
+  const verticalLineColor = isDarkMode ? catColor : catColor;
+
   return (
     <group ref={groupRef} position={[node.x, 0, node.z]}>
       {/* Vertical line from ground to marker */}
@@ -190,9 +255,9 @@ export default function Marker({ node }) {
           />
         </bufferGeometry>
         <lineBasicMaterial
-          color={CATEGORIES[node.type]?.color || '#4fc3f7'}
+          color={verticalLineColor}
           transparent
-          opacity={isGhost ? 0.1 : 0.2}
+          opacity={isGhost ? 0.1 : (isDarkMode ? 0.2 : 0.35)}
         />
       </line>
 
@@ -201,10 +266,10 @@ export default function Marker({ node }) {
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
           <ringGeometry args={[0.3, 0.5, 32]} />
           <meshBasicMaterial
-            color={CATEGORIES[node.type]?.color || '#4fc3f7'}
+            color={catColor}
             transparent
-            opacity={0.12}
-            blending={THREE.AdditiveBlending}
+            opacity={isDarkMode ? 0.12 : 0.15}
+            blending={isDarkMode ? THREE.AdditiveBlending : THREE.NormalBlending}
             side={THREE.DoubleSide}
           />
         </mesh>
@@ -240,12 +305,21 @@ export default function Marker({ node }) {
             }
           }}
         >
-          <MarkerIcon
-            type={node.type}
-            scale={globalScale}
-            isSelected={isSelected}
-            isGhost={isGhost}
-          />
+          {isDarkMode ? (
+            <MarkerIconDark
+              type={node.type}
+              scale={globalScale}
+              isSelected={isSelected}
+              isGhost={isGhost}
+            />
+          ) : (
+            <MarkerIconLight
+              type={node.type}
+              scale={globalScale}
+              isSelected={isSelected}
+              isGhost={isGhost}
+            />
+          )}
         </group>
       </Billboard>
 
@@ -262,14 +336,27 @@ export default function Marker({ node }) {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-            <svg
-              width={globalScale * 16}
-              height={globalScale * 16}
-              viewBox="0 0 24 24"
-              fill={isGhost ? '#666' : (isSelected ? '#fff' : CATEGORIES[node.type]?.color || '#c0c8d8')}
-            >
-              <path d={ICON_PATHS[CATEGORIES[node.type]?.icon] || ICON_PATHS.portatil} />
-            </svg>
+            {!isDarkMode && cat.iconImage ? (
+              <img 
+                src={cat.iconImage}
+                alt={cat.label || node.type}
+                style={{
+                  width: globalScale * 18,
+                  height: globalScale * 18,
+                  objectFit: 'contain',
+                  filter: 'brightness(0) invert(1)',
+                }}
+              />
+            ) : (
+              <svg
+                width={globalScale * 16}
+                height={globalScale * 16}
+                viewBox="0 0 24 24"
+                fill={isGhost ? '#666' : (isSelected ? '#fff' : (isDarkMode ? catColor : '#fff'))}
+              >
+                <path d={ICON_PATHS[cat.icon] || ICON_PATHS.portatil} />
+              </svg>
+            )}
           </div>
         </Html>
       </Billboard>
@@ -282,8 +369,12 @@ export default function Marker({ node }) {
           style={{ pointerEvents: 'none' }}
           zIndexRange={[50, 0]}
         >
-          <div className="text-[9px] font-mono text-center whitespace-nowrap px-1.5 py-0.5 rounded bg-black/70 border border-white/10"
-               style={{ color: CATEGORIES[node.type]?.color || '#4fc3f7' }}>
+          <div className={`text-[9px] font-mono text-center whitespace-nowrap px-1.5 py-0.5 rounded ${
+            isDarkMode 
+              ? 'bg-black/70 border border-white/10' 
+              : 'bg-white/80 border border-orange-200'
+          }`}
+               style={{ color: isDarkMode ? catColor : '#e86c1a' }}>
             {node.tooltipTitle}
           </div>
         </Html>

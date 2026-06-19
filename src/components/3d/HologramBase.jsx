@@ -1,13 +1,14 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { COLORS } from '../../config/constants';
+import { COLORS, COLORS_LIGHT } from '../../config/constants';
 import { useStore } from '../../store/useStore';
 
 export default function HologramBase() {
   const gridRef = useRef();
   const isAdminMode = useStore(s => s.isAdminMode);
   const isNodeEditMode = useStore(s => s.isNodeEditMode);
+  const isDarkMode = useStore(s => s.isDarkMode);
 
   const showGrid = isAdminMode || isNodeEditMode;
 
@@ -20,15 +21,18 @@ export default function HologramBase() {
     }
   });
 
+  const gridColor = isDarkMode ? COLORS.GLASS_LINE : COLORS_LIGHT.MODEL_WIRE;
+  const ringColor = isDarkMode ? COLORS.GLASS_LINE : COLORS_LIGHT.MODEL_WIRE;
+
   return (
     <group>
-      {/* Ground plane (subtle dark) */}
+      {/* Ground plane (subtle) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
         <planeGeometry args={[200, 200]} />
         <meshStandardMaterial
-          color={COLORS.BG_DARK}
+          color={isDarkMode ? COLORS.BG_DARK : COLORS_LIGHT.BG_PRIMARY}
           transparent
-          opacity={0.05}
+          opacity={isDarkMode ? 0.05 : 0.02}
         />
       </mesh>
 
@@ -36,7 +40,7 @@ export default function HologramBase() {
       {showGrid && (
         <gridHelper
           ref={gridRef}
-          args={[200, 200, COLORS.GLASS_LINE, COLORS.GLASS_LINE]}
+          args={[200, 200, gridColor, gridColor]}
           position={[0, 0.01, 0]}
         />
       )}
@@ -50,10 +54,10 @@ export default function HologramBase() {
         >
           <ringGeometry args={[radius - 0.02, radius + 0.02, 64]} />
           <meshBasicMaterial
-            color={COLORS.GLASS_LINE}
+            color={ringColor}
             transparent
-            opacity={0.02 - i * 0.005}
-            blending={THREE.AdditiveBlending}
+            opacity={isDarkMode ? (0.02 - i * 0.005) : (0.04 - i * 0.01)}
+            blending={isDarkMode ? THREE.AdditiveBlending : THREE.NormalBlending}
             side={THREE.DoubleSide}
           />
         </mesh>

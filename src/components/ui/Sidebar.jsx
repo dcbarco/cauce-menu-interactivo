@@ -3,10 +3,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { CATEGORIES, ICON_PATHS } from '../../config/constants';
 
-function CategoryIcon({ type, size = 18, color = '#fff' }) {
+function CategoryIcon({ type, size = 18, color = '#fff', isDarkMode = true }) {
   const cat = CATEGORIES[type];
   const iconKey = cat ? cat.icon : 'portatil';
   const path = ICON_PATHS[iconKey] || ICON_PATHS.portatil;
+
+  // In light mode, try to use PNG icon image
+  if (!isDarkMode && cat?.iconImage) {
+    return (
+      <img
+        src={cat.iconImage}
+        alt={cat.label}
+        style={{ width: size, height: size, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+      />
+    );
+  }
 
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color} opacity={0.85}>
@@ -15,7 +26,7 @@ function CategoryIcon({ type, size = 18, color = '#fff' }) {
   );
 }
 
-function StationDetail({ node }) {
+function StationDetail({ node, isDarkMode }) {
   if (!node) return null;
   const cat = CATEGORIES[node.type] || {};
 
@@ -26,15 +37,15 @@ function StationDetail({ node }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.3 }}
-      className="pointer-events-auto mt-auto glass-panel p-3"
+      className={`pointer-events-auto mt-auto p-3 ${isDarkMode ? 'glass-panel' : 'bg-white/30 rounded-2xl border border-white/30'}`}
     >
       <div className="mb-3">
         <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
              style={{ 
-               background: `${cat.color || '#4fc3f7'}15`,
-               border: `1px solid ${cat.color || '#4fc3f7'}30`
+               background: isDarkMode ? `${cat.color || '#4fc3f7'}15` : `rgba(255,255,255,0.3)`,
+               border: `1px solid ${isDarkMode ? `${cat.color || '#4fc3f7'}30` : 'rgba(255,255,255,0.4)'}`
              }}>
-          <CategoryIcon type={node.type} size={16} color={cat.color || '#4fc3f7'} />
+          <CategoryIcon type={node.type} size={16} color={isDarkMode ? (cat.color || '#4fc3f7') : '#fff'} isDarkMode={isDarkMode} />
         </div>
       </div>
 
@@ -42,10 +53,10 @@ function StationDetail({ node }) {
       {node.dato && (
         <div className="mb-2.5">
           <p className="text-[9px] font-mono uppercase tracking-widest mb-0.5"
-             style={{ color: cat.color || '#4fc3f7' }}>
+             style={{ color: isDarkMode ? (cat.color || '#4fc3f7') : 'rgba(255,255,255,0.7)' }}>
             Dato
           </p>
-          <p className="text-[11px] font-mono text-white/80 leading-snug">
+          <p className={`text-[11px] font-mono leading-snug ${isDarkMode ? 'text-white/80' : 'text-white/90'}`}>
             {node.dato}
           </p>
         </div>
@@ -55,10 +66,10 @@ function StationDetail({ node }) {
       {node.origen && (
         <div>
           <p className="text-[9px] font-mono uppercase tracking-widest mb-0.5"
-             style={{ color: cat.color || '#4fc3f7' }}>
+             style={{ color: isDarkMode ? (cat.color || '#4fc3f7') : 'rgba(255,255,255,0.7)' }}>
             Origen
           </p>
-          <p className="text-[11px] font-mono text-white/80 leading-snug">
+          <p className={`text-[11px] font-mono leading-snug ${isDarkMode ? 'text-white/80' : 'text-white/90'}`}>
             {node.origen}
           </p>
         </div>
@@ -73,6 +84,7 @@ export default function Sidebar() {
   const selectedNodeId = useStore(s => s.selectedNodeId);
   const selectNode = useStore(s => s.selectNode);
   const activeCategory = useStore(s => s.activeCategory);
+  const isDarkMode = useStore(s => s.isDarkMode);
 
   const visibleNodes = React.useMemo(() => {
     if (isAdminMode) return nodes;
@@ -101,7 +113,11 @@ export default function Sidebar() {
       </div>
 
       {/* Station List (compact scrollable) */}
-      <div className="glass-panel p-2 mb-3 max-h-[220px] overflow-y-auto flex-shrink-0">
+      <div className={`p-2 mb-3 max-h-[220px] overflow-y-auto flex-shrink-0 rounded-2xl ${
+        isDarkMode
+          ? 'glass-panel'
+          : 'sidebar-light'
+      }`}>
         <div className="space-y-0.5">
           {visibleNodes.map((node, index) => {
             const cat = CATEGORIES[node.type] || {};
@@ -114,26 +130,40 @@ export default function Sidebar() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.04 }}
                 onClick={() => selectNode(node.id)}
-                className={`sidebar-node w-full text-left px-3 py-2 rounded-xl flex items-center gap-3 group
-                  ${isSelected ? 'active' : ''}
+                className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-3 group
+                  ${isDarkMode
+                    ? `sidebar-node ${isSelected ? 'active' : ''}`
+                    : `sidebar-node-light ${isSelected ? 'active' : ''}`
+                  }
                   ${node.disabled ? 'opacity-40' : ''}`}
               >
                 {/* Category icon */}
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
                      style={{
-                       background: isSelected ? `${cat.color || '#4fc3f7'}20` : 'rgba(255,255,255,0.05)',
-                       border: `1px solid ${isSelected ? `${cat.color || '#4fc3f7'}40` : 'rgba(255,255,255,0.08)'}`
+                       background: isDarkMode
+                         ? (isSelected ? `${cat.color || '#4fc3f7'}20` : 'rgba(255,255,255,0.05)')
+                         : (isSelected ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.15)'),
+                       border: isDarkMode
+                         ? `1px solid ${isSelected ? `${cat.color || '#4fc3f7'}40` : 'rgba(255,255,255,0.08)'}`
+                         : `1px solid ${isSelected ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)'}`
                      }}>
-                  <CategoryIcon type={node.type} size={14} color={isSelected ? '#fff' : (cat.color || '#4fc3f7')} />
+                  <CategoryIcon 
+                    type={node.type} 
+                    size={14} 
+                    color={isDarkMode ? (isSelected ? '#fff' : (cat.color || '#4fc3f7')) : '#fff'} 
+                    isDarkMode={isDarkMode}
+                  />
                 </div>
 
                 {/* Node info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-grotesk font-medium text-white/85 truncate leading-tight group-hover:text-white">
+                  <p className={`text-sm font-grotesk font-medium truncate leading-tight group-hover:text-white ${
+                    isDarkMode ? 'text-white/85' : 'text-white/90'
+                  }`}>
                     {node.title}
                   </p>
                   <p className="text-[9px] font-mono uppercase tracking-wider mt-0.5"
-                     style={{ color: cat.color || '#4fc3f7' }}>
+                     style={{ color: isDarkMode ? (cat.color || '#4fc3f7') : 'rgba(255,255,255,0.6)' }}>
                     {cat.label || node.type}
                     {node.disabled && (
                       <span className="text-red-400 ml-1">· suspendido</span>
@@ -148,7 +178,7 @@ export default function Sidebar() {
 
       {/* Station Detail Card (bottom-left, like prototype) */}
       <AnimatePresence mode="wait">
-        {selectedNode && <StationDetail node={selectedNode} />}
+        {selectedNode && <StationDetail node={selectedNode} isDarkMode={isDarkMode} />}
       </AnimatePresence>
     </motion.div>
   );

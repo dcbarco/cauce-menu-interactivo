@@ -18,6 +18,7 @@ export default function Scene() {
   const nodes = useStore(s => s.nodes);
   const isAdminMode = useStore(s => s.isAdminMode);
   const clearSelection = useStore(s => s.clearSelection);
+  const isDarkMode = useStore(s => s.isDarkMode);
 
   const show3DModel = useStore(s => s.show3DModel);
 
@@ -39,10 +40,21 @@ export default function Scene() {
       }
     }}>
       {/* Lighting */}
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[10, 20, 10]} intensity={0.7} />
-      <directionalLight position={[-10, 15, -5]} intensity={0.3} color="#4fc3f7" />
-      <pointLight position={[0, 10, 0]} intensity={0.3} color="#4fc3f7" />
+      {isDarkMode ? (
+        <>
+          <ambientLight intensity={0.4} />
+          <directionalLight position={[10, 20, 10]} intensity={0.7} />
+          <directionalLight position={[-10, 15, -5]} intensity={0.3} color="#4fc3f7" />
+          <pointLight position={[0, 10, 0]} intensity={0.3} color="#4fc3f7" />
+        </>
+      ) : (
+        <>
+          <ambientLight intensity={0.8} />
+          <directionalLight position={[10, 20, 10]} intensity={1.0} color="#fff5e6" />
+          <directionalLight position={[-10, 15, -5]} intensity={0.4} color="#ffd4a8" />
+          <pointLight position={[0, 10, 0]} intensity={0.2} color="#e86c1a" />
+        </>
+      )}
 
       {/* Environment base */}
       {show3DModel && <HologramBase />}
@@ -60,8 +72,12 @@ export default function Scene() {
       {/* User Avatar */}
       <Avatar />
 
-      {/* Fog */}
-      <fog attach="fog" args={['#0a0d14', 30, 60]} />
+      {/* Fog - adapts to theme */}
+      {isDarkMode ? (
+        <fog attach="fog" args={['#0a0d14', 30, 60]} />
+      ) : (
+        <fog attach="fog" args={['#f5f0eb', 40, 80]} />
+      )}
     </group>
   );
 }

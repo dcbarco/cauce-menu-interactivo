@@ -8,16 +8,26 @@ import Sidebar from './components/ui/Sidebar';
 import Tooltip from './components/ui/Tooltip';
 import AdminPanel from './components/ui/AdminPanel';
 import Legend from './components/ui/Legend';
+import ThemeToggle from './components/ui/ThemeToggle';
 
 function LoadingScreen() {
+  const isDarkMode = useStore(s => s.isDarkMode);
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center" style={{ background: 'radial-gradient(circle at center, #1a2a44 0%, #08111e 50%, #000000 100%)' }}>
-      <div className="text-center glass-panel-elevated p-8">
-        <div className="w-12 h-12 border-2 border-white/10 border-t-white/60 rounded-full animate-spin mx-auto mb-4" />
-        <p className="font-grotesk text-sm text-white/50 tracking-widest">
+    <div className="absolute inset-0 z-50 flex items-center justify-center" 
+         style={{ background: isDarkMode 
+           ? 'radial-gradient(circle at center, #1a2a44 0%, #08111e 50%, #000000 100%)' 
+           : 'radial-gradient(ellipse at 30% 20%, #faf7f3 0%, #f5ede4 40%, #efe5d8 100%)'
+         }}>
+      <div className={`text-center p-8 ${isDarkMode ? 'glass-panel-elevated' : 'tooltip-light'}`}>
+        <div className={`w-12 h-12 border-2 rounded-full animate-spin mx-auto mb-4 ${
+          isDarkMode 
+            ? 'border-white/10 border-t-white/60' 
+            : 'border-orange-200 border-t-orange-500'
+        }`} />
+        <p className={`font-grotesk text-sm tracking-widest ${isDarkMode ? 'text-white/50' : 'text-orange-600/60'}`}>
           CARGANDO CIRCUITO
         </p>
-        <p className="font-mono text-[10px] text-white/25 mt-1">
+        <p className={`font-mono text-[10px] mt-1 ${isDarkMode ? 'text-white/25' : 'text-gray-400'}`}>
           Preparando escena 3D...
         </p>
       </div>
@@ -151,6 +161,7 @@ export default function App() {
   const isNodeEditMode = useStore(state => state.isNodeEditMode);
   const draggedNodeId = useStore(state => state.draggedNodeId);
   const draggedAvatar = useStore(state => state.draggedAvatar);
+  const isDarkMode = useStore(state => state.isDarkMode);
   
   const controlsRef = useRef();
   
@@ -191,8 +202,14 @@ export default function App() {
     };
   }, []);
 
+  const bgStyle = isDarkMode
+    ? { background: 'radial-gradient(circle at center, #1a2a44 0%, #08111e 50%, #000000 100%)' }
+    : { background: 'radial-gradient(ellipse at 30% 20%, #faf7f3 0%, #f5ede4 40%, #efe5d8 100%)' };
+
   return (
-    <div className="w-full h-screen overflow-hidden relative" style={{ background: 'radial-gradient(circle at center, #1a2a44 0%, #08111e 50%, #000000 100%)' }} id="app-root">
+    <div className={`w-full h-screen overflow-hidden relative ${isDarkMode ? '' : 'light-mode'}`} 
+         style={bgStyle} 
+         id="app-root">
       
       {/* CAPA 3D - Canvas de pantalla completa */}
       <div className="absolute inset-0 z-0">
@@ -259,10 +276,21 @@ export default function App() {
         </div>
       </div>
 
-      {/* Top-right instruction hint */}
-      <div className="absolute top-4 right-48 z-10 pointer-events-none hidden md:block">
-        <div className="glass-panel px-3 py-1.5 flex items-center gap-2 text-[11px] font-mono text-white/30">
-          <span className="w-1.5 h-1.5 rounded-full bg-white/20 inline-block"></span>
+      {/* Top-right area: Theme Toggle + Instruction hint */}
+      <div className="absolute top-4 right-4 z-10 pointer-events-auto flex items-center gap-3">
+        <ThemeToggle />
+      </div>
+
+      {/* Instruction hint */}
+      <div className={`absolute top-14 right-4 z-10 pointer-events-none hidden md:block`}>
+        <div className={`px-3 py-1.5 flex items-center gap-2 text-[11px] font-mono ${
+          isDarkMode 
+            ? 'glass-panel text-white/30' 
+            : 'tooltip-light text-gray-400'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full inline-block ${
+            isDarkMode ? 'bg-white/20' : 'bg-orange-400'
+          }`}></span>
           Clic y arrastra para rotar | Doble clic para centrar
         </div>
       </div>

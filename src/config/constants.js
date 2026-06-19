@@ -18,41 +18,49 @@ export const CATEGORIES = {
     label: 'VR',
     color: '#8b5cf6',
     icon: 'vr',
+    iconImage: '/iconos/VR.png',
   },
   TACTIL: {
     label: 'Táctil',
     color: '#10b981',
     icon: 'tactil',
+    iconImage: '/iconos/TACTIL.png',
   },
   PORTATIL: {
     label: 'Portátil',
     color: '#06b6d4',
     icon: 'portatil',
+    iconImage: null, // No PNG available, use SVG fallback
   },
   AUDIO: {
     label: 'Audio',
     color: '#f59e0b',
     icon: 'audio',
+    iconImage: '/iconos/AUDIO.png',
   },
   AR: {
     label: 'AR',
     color: '#ec4899',
     icon: 'ar',
+    iconImage: '/iconos/AR.png',
   },
   REPOSITORIO: {
     label: 'Repositorio',
     color: '#6366f1',
     icon: 'repositorio',
+    iconImage: '/iconos/REPOSITORIO.png',
   },
   PANTALLA: {
     label: 'Pantalla',
     color: '#14b8a6',
     icon: 'pantalla',
+    iconImage: null, // No PNG available, use SVG fallback
   },
   TOTEM: {
     label: 'Totem',
     color: '#ef4444',
     icon: 'totem',
+    iconImage: '/iconos/TOTEM.png',
   },
 };
 
@@ -93,4 +101,26 @@ export const SCENE = {
   AVATAR_Y_OFFSET: 0.5,
   DRAG_PLANE_Y: 0,
   MODEL_SCALE: 1,
+};
+
+// ===== Light Mode Colors =====
+export const COLORS_LIGHT = {
+  BG_PRIMARY: '#f5f0eb',
+  BG_GRADIENT_START: '#faf7f3',
+  BG_GRADIENT_MID: '#f5ede4',
+  BG_GRADIENT_END: '#efe5d8',
+  ACCENT_ORANGE: '#e86c1a',
+  ACCENT_ORANGE_DARK: '#c45a2d',
+  SIDEBAR_BG: '#e86c1a',
+  SIDEBAR_TEXT: '#ffffff',
+  SIDEBAR_SELECTED: 'rgba(255, 200, 150, 0.5)',
+  TOOLTIP_BG: '#faf7f3',
+  TOOLTIP_TEXT: '#333333',
+  TOOLTIP_LABEL: '#e86c1a',
+  TEXT_PRIMARY: '#333333',
+  TEXT_SECONDARY: '#666666',
+  LEGEND_BG: '#e86c1a',
+  MODEL_WIRE: 0xc45a2d,
+  MODEL_BODY: 0xf5e6d8,
+  FOG: '#f5f0eb',
 };

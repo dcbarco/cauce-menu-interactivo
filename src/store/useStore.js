@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { initialNodes, defaultCameraConfig, defaultUserLocation } from '../config/data';
 
+// Read initial theme from localStorage (default to dark)
+const getInitialTheme = () => {
+    try {
+        const saved = localStorage.getItem('cauce-theme');
+        return saved === 'light' ? false : true; // default dark
+    } catch { return true; }
+};
+
 export const useStore = create((set, get) => ({
     // State
     isAdminMode: false,
@@ -14,6 +22,7 @@ export const useStore = create((set, get) => ({
     userLocation: defaultUserLocation,
     activeCategory: null, // For bottom category filter
     show3DModel: true,
+    isDarkMode: getInitialTheme(),
 
     // Actions
     fetchData: async () => {
@@ -36,6 +45,11 @@ export const useStore = create((set, get) => ({
     setAdminMode: (val) => set({ isAdminMode: val }),
     setAdminAuthenticated: (val) => set({ isAdminAuthenticated: val }),
     toggle3DModel: () => set((state) => ({ show3DModel: !state.show3DModel })),
+    toggleTheme: () => set((state) => {
+        const newDark = !state.isDarkMode;
+        try { localStorage.setItem('cauce-theme', newDark ? 'dark' : 'light'); } catch {}
+        return { isDarkMode: newDark };
+    }),
     setNodeEditMode: (val) => set({ isNodeEditMode: val, selectedNodeId: null, draggedNodeId: null }),
     toggleAdmin: () => {
         const state = get();

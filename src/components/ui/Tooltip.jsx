@@ -7,6 +7,7 @@ export default function Tooltip({ node }) {
   if (!node) return null;
 
   const clearSelection = useStore(s => s.clearSelection);
+  const isDarkMode = useStore(s => s.isDarkMode);
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function Tooltip({ node }) {
     : Array.isArray(node.equipment) ? node.equipment : [];
 
   const catColor = CATEGORIES[node.type]?.color || '#4fc3f7';
+  const cat = CATEGORIES[node.type];
 
   return (
     <motion.div
@@ -55,20 +57,25 @@ export default function Tooltip({ node }) {
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 10, scale: 0.95 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="pointer-events-auto glass-panel-elevated w-[270px] sm:w-[320px] relative"
+      className={`pointer-events-auto w-[270px] sm:w-[320px] relative ${
+        isDarkMode ? 'glass-panel-elevated' : 'tooltip-light'
+      }`}
       style={{ transform: 'translate(20px, -50%)' }}
     >
       {/* Visual connector line back to the point origin */}
-      <div className="absolute top-1/2 -left-5 w-5 h-px" style={{ background: `${catColor}50` }} />
+      <div className="absolute top-1/2 -left-5 w-5 h-px" style={{ background: isDarkMode ? `${catColor}50` : `${catColor}40` }} />
       <div className="absolute top-1/2 -left-5 w-1.5 h-1.5 rounded-full -translate-y-1/2" style={{ background: catColor }} />
 
       {/* Progress Bar Container */}
-      <div className="absolute top-0 left-3 right-3 h-[2px] rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+      <div className="absolute top-0 left-3 right-3 h-[2px] rounded-full overflow-hidden" 
+           style={{ background: isDarkMode ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }}>
         <div 
           className="h-full rounded-full transition-none"
           style={{ 
             width: `${progress}%`,
-            background: `linear-gradient(90deg, ${catColor}, ${catColor}80)`
+            background: isDarkMode 
+              ? `linear-gradient(90deg, ${catColor}, ${catColor}80)`
+              : `linear-gradient(90deg, #e86c1a, #f59e0b)`
           }}
         />
       </div>
@@ -78,18 +85,29 @@ export default function Tooltip({ node }) {
         {/* Title row with icon */}
         <div className="flex items-center gap-3 mb-4 mt-1">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-               style={{ background: `${catColor}15`, border: `1px solid ${catColor}25` }}>
-            <svg width="18" height="18" viewBox="0 0 24 24"
-                 fill={catColor}>
-              <path d={ICON_PATHS[CATEGORIES[node.type]?.icon] || ICON_PATHS.portatil} />
-            </svg>
+               style={{ 
+                 background: isDarkMode ? `${catColor}15` : `${catColor}12`,
+                 border: `1px solid ${isDarkMode ? `${catColor}25` : `${catColor}20`}` 
+               }}>
+            {!isDarkMode && cat?.iconImage ? (
+              <img 
+                src={cat.iconImage} 
+                alt={cat.label} 
+                style={{ width: 18, height: 18, objectFit: 'contain', filter: `brightness(0) saturate(100%) sepia(100%) hue-rotate(${getHueRotation(catColor)}deg)` }} 
+              />
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24"
+                   fill={catColor}>
+                <path d={ICON_PATHS[CATEGORIES[node.type]?.icon] || ICON_PATHS.portatil} />
+              </svg>
+            )}
           </div>
           <div>
-            <h3 className="font-grotesk text-lg font-bold leading-tight text-white">
+            <h3 className={`font-grotesk text-lg font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
               {node.tooltipTitle}
             </h3>
             <p className="text-[10px] font-mono uppercase tracking-widest mt-0.5"
-               style={{ color: catColor }}>
+               style={{ color: isDarkMode ? catColor : '#e86c1a' }}>
               {CATEGORIES[node.type]?.label || node.type}
             </p>
           </div>
@@ -99,10 +117,10 @@ export default function Tooltip({ node }) {
         {node.concept && (
           <div className="mb-4">
             <p className="text-[10px] font-mono uppercase tracking-widest mb-1.5"
-               style={{ color: catColor }}>
+               style={{ color: isDarkMode ? catColor : '#e86c1a' }}>
               Concepto
             </p>
-            <p className="text-sm text-white/70 leading-relaxed">
+            <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-white/70' : 'text-gray-600'}`}>
               {node.concept}
             </p>
           </div>
@@ -112,13 +130,13 @@ export default function Tooltip({ node }) {
         {equipmentLines.length > 0 && (
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest mb-1.5"
-               style={{ color: catColor }}>
+               style={{ color: isDarkMode ? catColor : '#e86c1a' }}>
               Equipamiento
             </p>
             <ul className="space-y-1">
               {equipmentLines.map((item, i) => (
-                <li key={i} className="text-sm text-white/70 flex items-start gap-2">
-                  <span className="mt-1 flex-shrink-0" style={{ color: catColor }}>•</span>
+                <li key={i} className={`text-sm flex items-start gap-2 ${isDarkMode ? 'text-white/70' : 'text-gray-600'}`}>
+                  <span className="mt-1 flex-shrink-0" style={{ color: isDarkMode ? catColor : '#e86c1a' }}>•</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -128,4 +146,20 @@ export default function Tooltip({ node }) {
       </div>
     </motion.div>
   );
+}
+
+// Helper to approximate hue rotation for icon tinting
+function getHueRotation(hexColor) {
+  // Simple mapping for known category colors
+  const map = {
+    '#8b5cf6': 260,  // purple (VR)
+    '#10b981': 160,  // green (TACTIL)
+    '#06b6d4': 190,  // cyan (PORTATIL)
+    '#f59e0b': 40,   // amber (AUDIO)
+    '#ec4899': 330,  // pink (AR)
+    '#6366f1': 240,  // indigo (REPOSITORIO)
+    '#14b8a6': 170,  // teal (PANTALLA)
+    '#ef4444': 0,    // red (TOTEM)
+  };
+  return map[hexColor] || 0;
 }
