@@ -63,6 +63,18 @@ function CameraAnimator({ controlsRef }) {
   const [targetParams, setTargetParams] = React.useState(null);
   
   React.useEffect(() => {
+    const handleUserInteraction = () => {
+      setTargetParams(null);
+    };
+    window.addEventListener('pointerdown', handleUserInteraction);
+    window.addEventListener('wheel', handleUserInteraction);
+    return () => {
+      window.removeEventListener('pointerdown', handleUserInteraction);
+      window.removeEventListener('wheel', handleUserInteraction);
+    };
+  }, []);
+
+  React.useEffect(() => {
     // Don't animate camera when in node edit mode or dragging
     if (isNodeEditMode || draggedNodeId) return;
 
@@ -99,8 +111,8 @@ function CameraAnimator({ controlsRef }) {
       controlsRef.current.target.lerp(targetParams.target, step);
       camera.position.lerp(targetParams.pos, step);
       
-      if (controlsRef.current.target.distanceTo(targetParams.target) < 0.1 &&
-          camera.position.distanceTo(targetParams.pos) < 0.1) {
+      if (controlsRef.current.target.distanceTo(targetParams.target) < 0.5 &&
+          camera.position.distanceTo(targetParams.pos) < 0.5) {
         setTargetParams(null);
       }
     }
@@ -112,13 +124,28 @@ function CameraAnimator({ controlsRef }) {
 // Handles smooth transition to top-down view for node editing
 function NodeEditCameraController({ controlsRef }) {
   const isNodeEditMode = useStore(s => s.isNodeEditMode);
-  const cameraConfig = useStore(s => s.cameraConfig);
+  const selectedNodeId = useStore(s => s.selectedNodeId);
+  const nodes = useStore(s => s.nodes);
   const { camera } = useThree();
   const savedCameraRef = useRef(null);
+  const transitionTargetRef = useRef(null);
 
-  // Top-down camera position
-  const TOP_DOWN_POS = React.useMemo(() => new THREE.Vector3(0, 35, 0.1), []);
-  const TOP_DOWN_TARGET = React.useMemo(() => new THREE.Vector3(0, 0, 0), []);
+  // Top-down default camera position height
+  const TOP_DOWN_HEIGHT = 45;
+
+  React.useEffect(() => {
+    const handleUserInteraction = () => {
+      // If user interacts, instantly abort any ongoing transition
+      savedCameraRef.current = null;
+      transitionTargetRef.current = null;
+    };
+    window.addEventListener('pointerdown', handleUserInteraction);
+    window.addEventListener('wheel', handleUserInteraction);
+    return () => {
+      window.removeEventListener('pointerdown', handleUserInteraction);
+      window.removeEventListener('wheel', handleUserInteraction);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (isNodeEditMode) {
@@ -129,17 +156,59 @@ function NodeEditCameraController({ controlsRef }) {
           target: controlsRef.current.target.clone()
         };
       }
+      
+      // Determine initial top-down focus: if a node is selected, focus on it, otherwise center
+      const selectedNode = nodes.find(n => n.id === selectedNodeId);
+      const targetX = selectedNode ? selectedNode.x : 0;
+      const targetZ = selectedNode ? selectedNode.z : 0;
+      
+      transitionTargetRef.current = {
+        pos: new THREE.Vector3(targetX, TOP_DOWN_HEIGHT, targetZ + 0.1),
+        target: new THREE.Vector3(targetX, 0, targetZ)
+      };
+    } else {
+      transitionTargetRef.current = null;
     }
   }, [isNodeEditMode]);
+
+  // Center on node if selected from the list during node edit mode
+  React.useEffect(() => {
+    if (isNodeEditMode && selectedNodeId) {
+      const selectedNode = nodes.find(n => n.id === selectedNodeId);
+      if (selectedNode) {
+        // Keep current camera height if reasonable, otherwise use default height
+        const currentY = camera.position.y > 5 ? camera.position.y : TOP_DOWN_HEIGHT;
+        transitionTargetRef.current = {
+          pos: new THREE.Vector3(selectedNode.x, currentY, selectedNode.z + 0.1),
+          target: new THREE.Vector3(selectedNode.x, 0, selectedNode.z)
+        };
+      }
+    }
+  }, [selectedNodeId, isNodeEditMode, nodes]);
 
   useFrame((state, delta) => {
     if (!controlsRef.current) return;
 
+    // Ensure mouse mapping is correct dynamically without passing it as a reactive prop to OrbitControls
     if (isNodeEditMode) {
-      // Smoothly animate to top-down
-      const step = Math.min(3 * delta, 1);
-      camera.position.lerp(TOP_DOWN_POS, step);
-      controlsRef.current.target.lerp(TOP_DOWN_TARGET, step);
+      controlsRef.current.mouseButtons.LEFT = THREE.MOUSE.PAN;
+      controlsRef.current.touches.ONE = THREE.TOUCH.PAN;
+    } else {
+      controlsRef.current.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
+      controlsRef.current.touches.ONE = THREE.TOUCH.ROTATE;
+    }
+
+    if (isNodeEditMode) {
+      if (transitionTargetRef.current) {
+        const step = Math.min(4 * delta, 1);
+        camera.position.lerp(transitionTargetRef.current.pos, step);
+        controlsRef.current.target.lerp(transitionTargetRef.current.target, step);
+
+        if (camera.position.distanceTo(transitionTargetRef.current.pos) < 0.2 &&
+            controlsRef.current.target.distanceTo(transitionTargetRef.current.target) < 0.1) {
+          transitionTargetRef.current = null;
+        }
+      }
     } else if (savedCameraRef.current) {
       // Smoothly return to saved position
       const step = Math.min(3 * delta, 1);
@@ -204,7 +273,7 @@ export default function App() {
 
   const bgStyle = isDarkMode
     ? { background: 'radial-gradient(circle at center, #1a2a44 0%, #08111e 50%, #000000 100%)' }
-    : { background: 'radial-gradient(ellipse at 30% 20%, #faf7f3 0%, #f5ede4 40%, #efe5d8 100%)' };
+    : { background: 'radial-gradient(circle at center, #ffffff 0%, #faf6f0 40%, #ebdcc8 100%)' };
 
   return (
     <div className={`w-full h-screen overflow-hidden relative ${isDarkMode ? '' : 'light-mode'}`} 
@@ -219,7 +288,7 @@ export default function App() {
               position: [cameraConfig.pos.x, cameraConfig.pos.y, cameraConfig.pos.z],
               fov: 32,
               near: 0.1,
-              far: 200
+              far: 2000
             }}
             dpr={[1, 2]}
             gl={{ antialias: true, alpha: true }}
@@ -242,14 +311,13 @@ export default function App() {
             <OrbitControls
               ref={controlsRef}
               enabled={!disableOrbitAll}
-              target={[cameraConfig.target.x, cameraConfig.target.y, cameraConfig.target.z]}
               enablePan={true}
               enableZoom={true}
               enableRotate={!disableOrbitRotation}
               maxPolarAngle={disableOrbitRotation ? 0.01 : Math.PI / 2.2}
               minPolarAngle={disableOrbitRotation ? 0 : 0}
               minDistance={5}
-              maxDistance={isNodeEditMode ? 120 : 50}
+              maxDistance={isNodeEditMode ? 1000 : 50}
               dampingFactor={0.05}
               enableDamping={true}
             />
@@ -278,12 +346,8 @@ export default function App() {
 
       {/* Top-right area: Theme Toggle + Instruction hint */}
       <div className="absolute top-4 right-4 z-10 pointer-events-auto flex items-center gap-3">
-        <ThemeToggle />
-      </div>
-
-      {/* Instruction hint */}
-      <div className={`absolute top-14 right-4 z-10 pointer-events-none hidden md:block`}>
-        <div className={`px-3 py-1.5 flex items-center gap-2 text-[11px] font-mono ${
+        {/* Instruction hint */}
+        <div className={`px-3 py-1.5 flex items-center gap-2 text-[11px] font-mono pointer-events-none hidden md:flex ${
           isDarkMode 
             ? 'glass-panel text-white/30' 
             : 'tooltip-light text-gray-400'
@@ -293,6 +357,7 @@ export default function App() {
           }`}></span>
           Clic y arrastra para rotar | Doble clic para centrar
         </div>
+        <ThemeToggle />
       </div>
 
       {/* Footer: Category Legend */}

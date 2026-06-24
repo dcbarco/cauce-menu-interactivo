@@ -17,6 +17,7 @@ function LoadingFallback() {
 export default function Scene() {
   const nodes = useStore(s => s.nodes);
   const isAdminMode = useStore(s => s.isAdminMode);
+  const isNodeEditMode = useStore(s => s.isNodeEditMode);
   const clearSelection = useStore(s => s.clearSelection);
   const isDarkMode = useStore(s => s.isDarkMode);
 
@@ -72,12 +73,12 @@ export default function Scene() {
       {/* User Avatar */}
       <Avatar />
 
-      {/* Fog - adapts to theme */}
-      {isDarkMode ? (
+      {/* Fog - adapts to theme (disabled in node edit mode so we can zoom out to find lost points) */}
+      {!isNodeEditMode && (isDarkMode ? (
         <fog attach="fog" args={['#0a0d14', 30, 60]} />
       ) : (
         <fog attach="fog" args={['#f5f0eb', 40, 80]} />
-      )}
+      ))}
     </group>
   );
 }

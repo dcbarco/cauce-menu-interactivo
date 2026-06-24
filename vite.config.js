@@ -22,6 +22,9 @@ export const defaultCameraConfig = ${JSON.stringify(data.cameraConfig, null, 2)}
 
 // Ubicación del avatar "Usted está aquí"
 export const defaultUserLocation = ${JSON.stringify(data.userLocation, null, 2)};
+
+// Mostrar info avanzada (Dato, Origen, Equipamiento)
+export const showAdvancedInfo = ${JSON.stringify(data.showAdvancedInfo !== undefined ? data.showAdvancedInfo : false)};
 `;
               fs.writeFileSync(path.resolve(__dirname, 'src/config/data.js'), content, 'utf-8');
               res.setHeader('Content-Type', 'application/json');

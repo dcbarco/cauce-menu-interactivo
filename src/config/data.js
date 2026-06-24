@@ -16,8 +16,8 @@ export const initialNodes = [
   {
     "id": 2,
     "type": "REPOSITORIO",
-    "x": 4,
-    "z": 2.5,
+    "x": 6.5,
+    "z": 4.5,
     "disabled": false,
     "title": "Tablet mapa navegable",
     "tooltipTitle": "CAUCE. Menú interactivo",
@@ -29,8 +29,8 @@ export const initialNodes = [
   {
     "id": 3,
     "type": "TACTIL",
-    "x": -14.530983927376656,
-    "z": -3.788965096407752,
+    "x": -12.5,
+    "z": 6,
     "disabled": false,
     "title": "Mapa interactivo - Datos para regiones - Línea de tiempo",
     "tooltipTitle": "Regionalización",
@@ -43,7 +43,7 @@ export const initialNodes = [
     "id": 4,
     "type": "TACTIL",
     "x": -11,
-    "z": -5,
+    "z": -7,
     "disabled": false,
     "title": "Juego plataforma y testimonios",
     "tooltipTitle": "Talento Tech",
@@ -55,8 +55,8 @@ export const initialNodes = [
   {
     "id": 5,
     "type": "TACTIL",
-    "x": 614.5716503238366,
-    "z": -24.55675882710403,
+    "x": -16,
+    "z": -4,
     "disabled": false,
     "title": "Observatorio de nubes",
     "tooltipTitle": "Universidad Intergeneracional",
@@ -69,7 +69,7 @@ export const initialNodes = [
     "id": 6,
     "type": "REPOSITORIO",
     "x": -1,
-    "z": 5,
+    "z": 4.5,
     "disabled": false,
     "title": "Muestra de resultados representativos de los cursos artísticos",
     "tooltipTitle": "Universidad Intergeneracional",
@@ -81,8 +81,8 @@ export const initialNodes = [
   {
     "id": 7,
     "type": "PANTALLA",
-    "x": 0.5,
-    "z": -1,
+    "x": -16.5,
+    "z": 1.5,
     "disabled": false,
     "title": "Video - Arteflix",
     "tooltipTitle": "Artes para la paz",
@@ -120,8 +120,8 @@ export const initialNodes = [
   {
     "id": 10,
     "type": "TOTEM",
-    "x": -15.5,
-    "z": 5,
+    "x": 11,
+    "z": 5.5,
     "disabled": false,
     "title": "Tatamá",
     "tooltipTitle": "Centro de Cencia FCC",
@@ -148,14 +148,14 @@ export const initialNodes = [
 // Configuración inicial de la cámara
 export const defaultCameraConfig = {
   "pos": {
-    "x": 21.93,
-    "y": 21.12,
-    "z": -24.2
+    "x": 22.34,
+    "y": 23.28,
+    "z": -19.45
   },
   "target": {
-    "x": 0,
+    "x": 0.09,
     "y": 0,
-    "z": 0
+    "z": 0.21
   }
 };
 
@@ -164,3 +164,6 @@ export const defaultUserLocation = {
   "x": 5.829194856229176,
   "z": 2.223176712276338
 };
+
+// Mostrar info avanzada (Dato, Origen, Equipamiento)
+export const showAdvancedInfo = false;

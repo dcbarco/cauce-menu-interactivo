@@ -20,10 +20,9 @@ html, body, #root {
   transition: background 0.5s ease, color 0.5s ease;
 }
 
-/* ===== LIGHT MODE ROOT ===== */
 .light-mode,
 .light-mode #root {
-  background: radial-gradient(ellipse at 30% 20%, #faf7f3 0%, #f5ede4 40%, #efe5d8 100%);
+  background: radial-gradient(circle at center, #ffffff 0%, #faf6f0 40%, #ebdcc8 100%);
   color: #333333;
 }
 
@@ -322,6 +321,17 @@ input[type="checkbox"]:checked::after {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
+.light-mode .glass-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #333333;
+}
+.light-mode .glass-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
 /* ===== Glass Input ===== */
 .glass-input {
   background: rgba(255, 255, 255, 0.06);
@@ -339,6 +349,21 @@ input[type="checkbox"]:checked::after {
 .glass-input::placeholder {
   color: rgba(255, 255, 255, 0.3);
 }
+
+.light-mode .glass-input {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #333333;
+}
+.light-mode .glass-input:focus {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(232, 108, 26, 0.3);
+  box-shadow: 0 0 0 3px rgba(232, 108, 26, 0.15);
+}
+.light-mode .glass-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
+}
+
 
 /* ===== Theme Toggle ===== */
 .theme-toggle {

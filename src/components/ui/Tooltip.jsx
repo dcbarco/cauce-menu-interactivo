@@ -8,6 +8,7 @@ export default function Tooltip({ node }) {
 
   const clearSelection = useStore(s => s.clearSelection);
   const isDarkMode = useStore(s => s.isDarkMode);
+  const showAdvancedInfo = useStore(s => s.showAdvancedInfo);
   const [progress, setProgress] = useState(100);
 
   useEffect(() => {
@@ -58,13 +59,13 @@ export default function Tooltip({ node }) {
       exit={{ opacity: 0, x: 10, scale: 0.95 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className={`pointer-events-auto w-[270px] sm:w-[320px] relative ${
-        isDarkMode ? 'glass-panel-elevated' : 'tooltip-light'
+        isDarkMode ? 'glass-panel-elevated' : 'bg-white/15 backdrop-blur-[6px] rounded-2xl border border-white/25 shadow-xl'
       }`}
-      style={{ transform: 'translate(20px, -50%)' }}
+      style={{ transform: 'translate(60px, -50%)' }}
     >
       {/* Visual connector line back to the point origin */}
-      <div className="absolute top-1/2 -left-5 w-5 h-px" style={{ background: isDarkMode ? `${catColor}50` : `${catColor}40` }} />
-      <div className="absolute top-1/2 -left-5 w-1.5 h-1.5 rounded-full -translate-y-1/2" style={{ background: catColor }} />
+      <div className="absolute top-1/2 h-px" style={{ left: '-40px', width: '40px', background: isDarkMode ? `${catColor}50` : `${catColor}40` }} />
+      <div className="absolute top-1/2 w-1.5 h-1.5 rounded-full -translate-y-1/2" style={{ left: '-40px', background: catColor }} />
 
       {/* Progress Bar Container */}
       <div className="absolute top-0 left-3 right-3 h-[2px] rounded-full overflow-hidden" 
@@ -103,11 +104,11 @@ export default function Tooltip({ node }) {
             )}
           </div>
           <div>
-            <h3 className={`font-grotesk text-lg font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+            <h3 className={`font-grotesk text-lg font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-[#431407]'}`}>
               {node.tooltipTitle}
             </h3>
             <p className="text-[10px] font-mono uppercase tracking-widest mt-0.5"
-               style={{ color: isDarkMode ? catColor : '#e86c1a' }}>
+               style={{ color: isDarkMode ? catColor : '#c2410c' }}>
               {CATEGORIES[node.type]?.label || node.type}
             </p>
           </div>
@@ -117,26 +118,26 @@ export default function Tooltip({ node }) {
         {node.concept && (
           <div className="mb-4">
             <p className="text-[10px] font-mono uppercase tracking-widest mb-1.5"
-               style={{ color: isDarkMode ? catColor : '#e86c1a' }}>
-              Concepto
+               style={{ color: isDarkMode ? catColor : '#c2410c' }}>
+              Explora
             </p>
-            <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-white/70' : 'text-gray-600'}`}>
+            <p className={`text-sm leading-relaxed ${isDarkMode ? 'text-white/70' : 'text-[#431407] font-medium'}`}>
               {node.concept}
             </p>
           </div>
         )}
 
         {/* Equipment */}
-        {equipmentLines.length > 0 && (
+        {showAdvancedInfo && equipmentLines.length > 0 && (
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest mb-1.5"
-               style={{ color: isDarkMode ? catColor : '#e86c1a' }}>
+               style={{ color: isDarkMode ? catColor : '#c2410c' }}>
               Equipamiento
             </p>
             <ul className="space-y-1">
               {equipmentLines.map((item, i) => (
-                <li key={i} className={`text-sm flex items-start gap-2 ${isDarkMode ? 'text-white/70' : 'text-gray-600'}`}>
-                  <span className="mt-1 flex-shrink-0" style={{ color: isDarkMode ? catColor : '#e86c1a' }}>•</span>
+                <li key={i} className={`text-sm flex items-start gap-2 ${isDarkMode ? 'text-white/70' : 'text-[#431407] font-medium'}`}>
+                  <span className="mt-1 flex-shrink-0" style={{ color: isDarkMode ? catColor : '#c2410c' }}>•</span>
                   <span>{item}</span>
                 </li>
               ))}

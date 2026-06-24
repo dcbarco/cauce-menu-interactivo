@@ -321,13 +321,8 @@ export default function Marker({ node }) {
             />
           )}
         </group>
-      </Billboard>
 
-      {/* HTML icon overlay on the billboard marker */}
-      <Billboard
-        follow={true}
-        position={[0, SCENE.MARKER_Y_OFFSET, 0]}
-      >
+        {/* HTML icon overlay now inside the same billboard marker to perfectly sync bobbing and camera movement */}
         <Html center style={{ pointerEvents: 'none' }} zIndexRange={[10, 0]}>
           <div style={{
             width: `${globalScale * 22}px`,
@@ -396,7 +391,7 @@ export default function Marker({ node }) {
       {/* 3D-anchored FULL tooltip (Selected large) */}
       {showFullTooltip && (
         <Html
-          position={[0.2, SCENE.MARKER_Y_OFFSET, 0]}
+          position={[0, SCENE.MARKER_Y_OFFSET, 0]}
           style={{ pointerEvents: 'none' }}
           zIndexRange={[1000, 0]}
         >

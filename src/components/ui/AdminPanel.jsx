@@ -10,6 +10,7 @@ function PasswordGate({ onSuccess, onCancel }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
+  const isDarkMode = useStore(s => s.isDarkMode);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -35,15 +36,15 @@ function PasswordGate({ onSuccess, onCancel }) {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         className={`glass-panel-elevated p-6 w-full max-w-[320px] mx-4 ${shake ? 'animate-shake' : ''}`}
-        style={{ borderColor: error ? 'rgba(239, 68, 68, 0.2)' : undefined }}
+        style={{ borderColor: error ? 'rgba(239, 68, 68, 0.2)' : isDarkMode ? undefined : 'rgba(232, 108, 26, 0.2)' }}
       >
         <div className="flex items-center gap-2 mb-4">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#f97316">
             <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
           </svg>
-          <h2 className="font-grotesk font-bold text-white text-lg">Acceso Admin</h2>
+          <h2 className={`font-grotesk font-bold text-lg ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Acceso Admin</h2>
         </div>
-        <p className="text-xs text-white/40 mb-4 font-mono">
+        <p className={`text-xs mb-4 font-mono ${isDarkMode ? 'text-white/40' : 'text-gray-500'}`}>
           Ingrese la clave para acceder al modo edición.
         </p>
         <form onSubmit={handleSubmit}>
@@ -61,14 +62,18 @@ function PasswordGate({ onSuccess, onCancel }) {
           <div className="flex gap-2">
             <button
               type="submit"
-              className="flex-1 glass-btn text-orange-400 text-xs font-mono py-2.5 hover:text-orange-300"
+              className={`flex-1 glass-btn text-xs font-mono py-2.5 ${
+                isDarkMode ? 'text-orange-400 hover:text-orange-300' : 'text-[#e86c1a] hover:text-[#d35f14] font-semibold'
+              }`}
             >
               Ingresar
             </button>
             <button
               type="button"
               onClick={onCancel}
-              className="glass-btn text-white/40 text-xs font-mono py-2.5 px-4 hover:text-white/70"
+              className={`glass-btn text-xs font-mono py-2.5 px-4 ${
+                isDarkMode ? 'text-white/40 hover:text-white/70' : 'text-gray-500 hover:text-gray-800'
+              }`}
             >
               Cancelar
             </button>
@@ -83,6 +88,7 @@ function PasswordGate({ onSuccess, onCancel }) {
 function NodeEditor({ node, onClose }) {
   const updateNode = useStore(s => s.updateNode);
   const deleteNode = useStore(s => s.deleteNode);
+  const isDarkMode = useStore(s => s.isDarkMode);
 
   const equipmentStr = typeof node.equipment === 'string'
     ? node.equipment
@@ -114,9 +120,10 @@ function NodeEditor({ node, onClose }) {
     }
   };
 
-  const inputClass = "w-full glass-input px-3 py-2 text-sm font-grotesk";
-  const labelClass = "text-[10px] font-mono text-white/35 uppercase tracking-widest mb-1 block";
+  const inputClass = `w-full glass-input px-3 py-2 text-sm font-grotesk ${isDarkMode ? '' : 'text-gray-800'}`;
+  const labelClass = `text-[10px] font-mono uppercase tracking-widest mb-1 block ${isDarkMode ? 'text-white/35' : 'text-gray-500'}`;
   const sectionTitleClass = "text-xs font-mono font-bold uppercase tracking-widest mb-3";
+  const sectionColor = isDarkMode ? '#4fc3f7' : '#0284c7';
 
   return (
     <motion.div
@@ -131,19 +138,19 @@ function NodeEditor({ node, onClose }) {
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 10 }}
         className="glass-panel-elevated p-5 w-full max-w-[420px] mx-4 max-h-[85vh] overflow-y-auto"
-        style={{ borderColor: 'rgba(249, 115, 22, 0.15)' }}
+        style={{ borderColor: isDarkMode ? 'rgba(249, 115, 22, 0.15)' : 'rgba(232, 108, 26, 0.25)' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/5">
-          <h3 className="font-grotesk font-bold text-orange-400 text-sm">
+        <div className={`flex items-center justify-between mb-4 pb-3 border-b ${isDarkMode ? 'border-white/5' : 'border-gray-200'}`}>
+          <h3 className={`font-grotesk font-bold text-sm ${isDarkMode ? 'text-orange-400' : 'text-[#e86c1a]'}`}>
             Editar Estación #{String(node.id).padStart(2, '0')}
           </h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-white text-lg transition-colors">×</button>
+          <button onClick={onClose} className={`text-lg transition-colors ${isDarkMode ? 'text-gray-500 hover:text-white' : 'text-gray-400 hover:text-gray-800'}`}>×</button>
         </div>
 
         {/* ---- FICHA TÉCNICA (IZQUIERDA) ---- */}
         <div className="mb-5">
-          <p className={sectionTitleClass} style={{ color: '#4fc3f7' }}>
+          <p className={sectionTitleClass} style={{ color: sectionColor }}>
             Ficha Técnica (Izquierda)
           </p>
 
@@ -171,7 +178,7 @@ function NodeEditor({ node, onClose }) {
 
         {/* ---- FICHA CONTENIDO (TOOLTIP) ---- */}
         <div className="mb-5">
-          <p className={sectionTitleClass} style={{ color: '#4fc3f7' }}>
+          <p className={sectionTitleClass} style={{ color: sectionColor }}>
             Ficha Contenido (Tooltip)
           </p>
 
@@ -196,6 +203,34 @@ function NodeEditor({ node, onClose }) {
           </div>
         </div>
 
+        {/* ---- Posición y Centrado ---- */}
+        <div className="mb-4 p-3 rounded-lg border border-dashed border-orange-500/30 bg-orange-500/5 flex items-center justify-between">
+          <div className="text-left">
+            <span className={labelClass}>Ubicación 3D:</span>
+            <p className={`text-xs font-mono mt-0.5 ${isDarkMode ? 'text-white/60' : 'text-gray-700'}`}>
+              X: {node.x?.toFixed(2) || 0} | Z: {node.z?.toFixed(2) || 0}
+            </p>
+          </div>
+          {(Math.abs(node.x) > 25 || Math.abs(node.z) > 20) && (
+            <span className="text-[10px] text-red-400 font-mono animate-pulse mr-2">⚠️ Fuera de Mapa</span>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm(`¿Restablecer la posición de "${node.tooltipTitle}" al centro del mapa?`)) {
+                updateNode(node.id, { x: 0, z: 0 });
+              }
+            }}
+            className={`text-[10px] font-mono py-1.5 px-3 rounded border transition-colors ${
+              isDarkMode
+                ? 'bg-orange-500/20 hover:bg-orange-500/35 border-orange-500/40 text-orange-300'
+                : 'bg-orange-50 hover:bg-orange-100 border-orange-200 text-[#e86c1a] font-semibold'
+            }`}
+          >
+            Restablecer Posición
+          </button>
+        </div>
+
         {/* ---- Category & Status ---- */}
         <div className="mb-4 space-y-3">
           <div>
@@ -206,7 +241,7 @@ function NodeEditor({ node, onClose }) {
               onChange={e => setForm({ ...form, type: e.target.value })}
             >
               {Object.entries(CATEGORIES).map(([key, cat]) => (
-                <option key={key} value={key} style={{ background: '#0a1628' }}>
+                <option key={key} value={key} style={{ background: isDarkMode ? '#0a1628' : '#faf7f3', color: isDarkMode ? '#e0e6f0' : '#333333' }}>
                   {cat.label}
                 </option>
               ))}
@@ -219,22 +254,30 @@ function NodeEditor({ node, onClose }) {
               id={`disabled-${node.id}`}
               checked={form.disabled}
               onChange={e => setForm({ ...form, disabled: e.target.checked })}
-              className="rounded border-gray-600"
+              className={`rounded ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
             />
-            <label htmlFor={`disabled-${node.id}`} className="text-xs text-gray-400 font-mono flex items-center gap-1">
-              <span className="text-red-400">⊘</span> Suspender Estación (Ocultar)
+            <label htmlFor={`disabled-${node.id}`} className={`text-xs font-mono flex items-center gap-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <span className={isDarkMode ? 'text-red-400' : 'text-red-600'}>⊘</span> Suspender Estación (Ocultar)
             </label>
           </div>
         </div>
 
         {/* ---- Action Buttons ---- */}
-        <div className="flex gap-2 pt-3 border-t border-white/5">
+        <div className={`flex gap-2 pt-3 border-t ${isDarkMode ? 'border-white/5' : 'border-gray-200'}`}>
           <button onClick={handleSave}
-            className="flex-1 bg-cauce-accent-blue/20 hover:bg-cauce-accent-blue/30 border border-cauce-accent-blue/30 text-cauce-accent-blue text-xs font-mono py-2.5 rounded-lg transition-colors">
+            className={`flex-1 text-xs font-mono py-2.5 rounded-lg transition-colors border ${
+              isDarkMode 
+                ? 'bg-cauce-accent-blue/20 hover:bg-cauce-accent-blue/30 border-cauce-accent-blue/30 text-cauce-accent-blue' 
+                : 'bg-sky-50 hover:bg-sky-100 border-sky-200 text-sky-700 font-semibold'
+            }`}>
             ✓ Guardar Cambios
           </button>
           <button onClick={handleDelete}
-            className="bg-red-900/30 hover:bg-red-900/50 border border-red-500/30 text-red-400 text-xs font-mono py-2.5 px-4 rounded-lg transition-colors">
+            className={`text-xs font-mono py-2.5 px-4 rounded-lg transition-colors border ${
+              isDarkMode
+                ? 'bg-red-900/30 hover:bg-red-900/50 border-red-500/30 text-red-400'
+                : 'bg-red-50 hover:bg-red-100 border-red-200 text-red-600'
+            }`}>
             Eliminar
           </button>
         </div>
@@ -250,6 +293,8 @@ export default function AdminPanel() {
   const setAdminMode = useStore(s => s.setAdminMode);
   const setAdminAuthenticated = useStore(s => s.setAdminAuthenticated);
   const logout = useStore(s => s.logout);
+  const showAdvancedInfo = useStore(s => s.showAdvancedInfo);
+  const setShowAdvancedInfo = useStore(s => s.setShowAdvancedInfo);
   const nodes = useStore(s => s.nodes);
   const selectedNodeId = useStore(s => s.selectedNodeId);
   const selectNode = useStore(s => s.selectNode);
@@ -262,6 +307,7 @@ export default function AdminPanel() {
   const isNodeEditMode = useStore(s => s.isNodeEditMode);
   const setNodeEditMode = useStore(s => s.setNodeEditMode);
   const draggedNodeId = useStore(s => s.draggedNodeId);
+  const isDarkMode = useStore(s => s.isDarkMode);
 
   const [showPasswordGate, setShowPasswordGate] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -388,7 +434,7 @@ export default function AdminPanel() {
       {!isAdminMode && (
         <div className="fixed inset-0 z-50 pointer-events-none">
           <div className="absolute top-0 left-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(0)} />
-          <div className="absolute top-0 right-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(1)} />
+          <div className="absolute top-0 right-0 w-16 h-3 pointer-events-auto" onClick={() => handleCornerClick(1)} />
           <div className="absolute bottom-0 right-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(2)} />
           <div className="absolute bottom-0 left-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(3)} />
         </div>
@@ -421,14 +467,14 @@ export default function AdminPanel() {
             className="fixed bottom-6 left-6 z-50 glass-panel p-3 min-w-[200px] border-l-4 pointer-events-none"
             style={{ borderLeftColor: CATEGORIES[draggedNode.type]?.color || '#4fc3f7' }}
           >
-            <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">
+            <p className={`text-[10px] font-mono uppercase tracking-widest mb-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
               Ubicando Estación
             </p>
-            <h3 className="font-grotesk font-bold text-white text-sm leading-tight">
+            <h3 className={`font-grotesk font-bold text-sm leading-tight ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
               {draggedNode.tooltipTitle}
             </h3>
             {draggedNode.title && draggedNode.title !== draggedNode.tooltipTitle && (
-              <p className="text-xs text-gray-400 mt-1 line-clamp-1">
+              <p className={`text-xs mt-1 line-clamp-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 {draggedNode.title}
               </p>
             )}
@@ -445,23 +491,25 @@ export default function AdminPanel() {
             exit={{ x: 400, opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className="fixed top-16 right-2 sm:right-4 z-40 glass-panel-elevated p-4 w-[280px] sm:w-80 max-h-[calc(100vh-100px)] overflow-y-auto"
-            style={{ borderColor: 'rgba(249, 115, 22, 0.15)' }}
+            style={{ borderColor: isDarkMode ? 'rgba(249, 115, 22, 0.15)' : 'rgba(232, 108, 26, 0.25)' }}
           >
             {/* Panel Header */}
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-grotesk font-bold text-white text-base">
+              <h2 className={`font-grotesk font-bold text-base ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                 Modo Edición
               </h2>
               <button
                 onClick={logout}
-                className="text-xs font-mono text-orange-400 hover:text-orange-300 transition-colors"
+                className={`text-xs font-mono transition-colors ${
+                  isDarkMode ? 'text-orange-400 hover:text-orange-300' : 'text-[#e86c1a] hover:text-[#d35f14] font-semibold'
+                }`}
               >
                 Cerrar
               </button>
             </div>
 
             {/* Drag instruction */}
-            <p className="text-[10px] font-mono text-gray-500 mb-3">
+            <p className={`text-[10px] font-mono mb-3 ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>
               Arrastra los iconos o la persona en el 3D para reubicarlos.
             </p>
 
@@ -470,8 +518,12 @@ export default function AdminPanel() {
               onClick={() => setNodeEditMode(!isNodeEditMode)}
               className={`w-full mb-3 py-2.5 px-3 rounded-lg text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-2 border ${
                 isNodeEditMode
-                  ? 'bg-orange-500/25 border-orange-500/50 text-orange-300 shadow-lg shadow-orange-500/10'
-                  : 'bg-white/5 border-white/15 text-gray-400 hover:bg-white/10 hover:text-gray-300'
+                  ? isDarkMode
+                    ? 'bg-orange-500/25 border-orange-500/50 text-orange-300 shadow-lg shadow-orange-500/10'
+                    : 'bg-orange-600/15 border-orange-500/40 text-orange-700 shadow-lg shadow-orange-600/10 font-semibold'
+                  : isDarkMode
+                    ? 'bg-white/5 border-white/15 text-gray-400 hover:bg-white/10 hover:text-gray-300'
+                    : 'bg-black/5 border-black/10 text-gray-600 hover:bg-black/10 hover:text-gray-800'
               }`}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -481,8 +533,12 @@ export default function AdminPanel() {
             </button>
 
             {isNodeEditMode && (
-              <div className="mb-3 p-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                <p className="text-[10px] font-mono text-orange-300 leading-relaxed">
+              <div className={`mb-3 p-2 rounded-lg border ${
+                isDarkMode 
+                  ? 'bg-orange-500/10 border-orange-500/20 text-orange-300' 
+                  : 'bg-orange-50/70 border-orange-200 text-orange-800'
+              }`}>
+                <p className="text-[10px] font-mono leading-relaxed">
                   📐 Vista cenital activa. Arrastra los nodos para reubicarlos en el plano. 
                   Haz scroll para acercar/alejar. Presiona de nuevo para volver a la vista 3D.
                 </p>
@@ -490,25 +546,52 @@ export default function AdminPanel() {
             )}
 
             {/* Display Options */}
-            <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+            <div className={`flex items-center gap-2 mb-3 p-2 rounded-lg border cursor-pointer hover:bg-white/10 transition-colors ${
+              isDarkMode 
+                ? 'bg-white/5 border-white/10 hover:bg-white/10' 
+                : 'bg-black/5 border-black/10 hover:bg-black/10'
+            }`}
                  onClick={toggle3DModel}>
               <input
                 type="checkbox"
                 id="toggle-3d"
                 checked={show3DModel}
                 onChange={toggle3DModel}
-                className="rounded border-gray-600 cursor-pointer pointer-events-none"
+                className={`rounded cursor-pointer pointer-events-none ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
               />
-              <label htmlFor="toggle-3d" className="text-xs text-gray-300 font-mono flex items-center gap-1 cursor-pointer pointer-events-none">
+              <label htmlFor="toggle-3d" className={`text-xs font-mono flex items-center gap-1 cursor-pointer pointer-events-none ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Mostrar Plano Base (Grilla)
               </label>
             </div>
 
+            {/* Advanced Info Toggle */}
+            <div className={`flex items-center gap-2 mb-3 p-2 rounded-lg border cursor-pointer hover:bg-white/10 transition-colors ${
+              isDarkMode 
+                ? 'bg-white/5 border-white/10 hover:bg-white/10' 
+                : 'bg-black/5 border-black/10 hover:bg-black/10'
+            }`}
+                 onClick={() => setShowAdvancedInfo(!showAdvancedInfo)}>
+              <input
+                type="checkbox"
+                id="toggle-advanced"
+                checked={showAdvancedInfo}
+                onChange={() => setShowAdvancedInfo(!showAdvancedInfo)}
+                className={`rounded cursor-pointer pointer-events-none ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`}
+              />
+              <label htmlFor="toggle-advanced" className={`text-xs font-mono flex items-center gap-1 cursor-pointer pointer-events-none ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Mostrar Info Avanzada (Dato/Origen)
+              </label>
+            </div>
+
             {/* Fullscreen Option */}
-            <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+            <div className={`flex items-center gap-2 mb-3 p-2 rounded-lg border cursor-pointer hover:bg-white/10 transition-colors ${
+              isDarkMode 
+                ? 'bg-white/5 border-white/10 hover:bg-white/10' 
+                : 'bg-black/5 border-black/10 hover:bg-black/10'
+            }`}
                  onClick={toggleFullscreen}>
               <div className="flex-1 flex items-center justify-between pointer-events-none">
-                <label className="text-xs text-gray-300 font-mono flex items-center gap-1 cursor-pointer">
+                <label className={`text-xs font-mono flex items-center gap-1 cursor-pointer ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   {isFullscreen ? '🖥️ Salir de Pantalla Completa' : '🖥️ Pantalla Completa'}
                 </label>
               </div>
@@ -518,25 +601,35 @@ export default function AdminPanel() {
             <div className="flex gap-2 mb-3">
               <button onClick={handleExport}
                 title="Copiar JSON al portapapeles"
-                className={`flex-1 text-[10px] font-mono py-2 rounded-lg transition-all
+                className={`flex-1 text-[10px] font-mono py-2 rounded-lg transition-all border
                   ${copied
-                    ? 'bg-green-900/30 border border-green-500/30 text-green-400'
-                    : 'bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 text-orange-400'}`}>
+                    ? isDarkMode
+                      ? 'bg-green-900/30 border border-green-500/30 text-green-400'
+                      : 'bg-green-50 border-green-200 text-green-700'
+                    : isDarkMode
+                      ? 'bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 text-orange-400'
+                      : 'bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-755'
+                  }`}>
                 {copied ? '✓ Copiado' : '📷 Snapshot'}
               </button>
               <button onClick={handleSaveToServer}
                 title="Guardar en data.js"
-                className={`flex-1 text-[10px] font-mono py-2 rounded-lg transition-all
+                className={`flex-1 text-[10px] font-mono py-2 rounded-lg transition-all border
                   ${saved
-                    ? 'bg-green-900/30 border border-green-500/30 text-green-400'
-                    : 'bg-cauce-accent-blue/20 hover:bg-cauce-accent-blue/30 border border-cauce-accent-blue/30 text-cauce-accent-blue'}`}>
+                    ? isDarkMode
+                      ? 'bg-green-900/30 border border-green-500/30 text-green-400'
+                      : 'bg-green-50 border-green-200 text-green-700'
+                    : isDarkMode
+                      ? 'bg-cauce-accent-blue/20 hover:bg-cauce-accent-blue/30 border border-cauce-accent-blue/30 text-cauce-accent-blue'
+                      : 'bg-sky-50 hover:bg-sky-100 border-sky-200 text-sky-700'
+                  }`}>
                 {saved ? '✓ Guardado' : '💾 Grabar'}
               </button>
             </div>
 
             {/* Scale Slider */}
             <div className="mb-4">
-              <label className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1 block">
+              <label className={`text-[10px] font-mono uppercase tracking-widest mb-1 block ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>
                 Tamaño global de iconos:
               </label>
               <input
@@ -546,14 +639,18 @@ export default function AdminPanel() {
                 step="0.1"
                 value={globalScale}
                 onChange={e => setGlobalScale(parseFloat(e.target.value))}
-                className="w-full accent-cauce-accent-blue h-1"
+                className={`w-full h-1 ${isDarkMode ? 'accent-cauce-accent-blue' : 'accent-[#e86c1a]'}`}
               />
             </div>
 
             {/* Add / Delete buttons */}
             <div className="flex gap-2 mb-4">
               <button onClick={handleAddNode}
-                className="flex-1 bg-green-900/20 hover:bg-green-900/30 border border-green-500/30 text-green-400 text-xs font-mono py-2 rounded-lg transition-colors">
+                className={`flex-1 text-xs font-mono py-2 rounded-lg transition-colors border ${
+                  isDarkMode 
+                    ? 'bg-green-900/20 hover:bg-green-900/30 border-green-500/30 text-green-400'
+                    : 'bg-green-50 hover:bg-green-100 border-green-200 text-green-700'
+                }`}>
                 + Agregar
               </button>
               <button
@@ -569,9 +666,15 @@ export default function AdminPanel() {
                 className={`flex-1 border text-xs font-mono py-2 rounded-lg transition-colors flex items-center justify-center gap-1
                   ${selectedNodeId 
                     ? (nodes.find(n => n.id === selectedNodeId)?.disabled 
-                        ? 'bg-blue-900/20 hover:bg-blue-900/30 border-blue-500/30 text-blue-400'
-                        : 'bg-orange-900/20 hover:bg-orange-900/30 border-orange-500/30 text-orange-400')
-                    : 'bg-white/5 border-white/10 text-gray-600 cursor-not-allowed'}`}
+                        ? isDarkMode
+                          ? 'bg-blue-900/20 hover:bg-blue-900/30 border-blue-500/30 text-blue-400'
+                          : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700'
+                        : isDarkMode
+                          ? 'bg-orange-900/20 hover:bg-orange-900/30 border-orange-500/30 text-orange-400'
+                          : 'bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700')
+                    : isDarkMode 
+                      ? 'bg-white/5 border-white/10 text-gray-600 cursor-not-allowed'
+                      : 'bg-black/5 border-black/5 text-gray-400 cursor-not-allowed'}`}
               >
                 {selectedNodeId && nodes.find(n => n.id === selectedNodeId)?.disabled ? '👁 Activar' : '⊘ Suspender'}
               </button>
@@ -585,8 +688,14 @@ export default function AdminPanel() {
                   }
                 }}
                 disabled={!selectedNodeId}
-                className={`bg-white/5 border border-white/10 text-xs font-mono py-2 px-3 rounded-lg transition-colors flex items-center gap-1
-                  ${selectedNodeId ? 'hover:bg-red-900/30 hover:border-red-500/30 hover:text-red-400 text-gray-400' : 'text-gray-600 cursor-not-allowed'}`}
+                className={`border text-xs font-mono py-2 px-3 rounded-lg transition-colors flex items-center gap-1
+                  ${selectedNodeId 
+                    ? isDarkMode
+                      ? 'bg-white/5 border-white/10 hover:bg-red-900/30 hover:border-red-500/30 hover:text-red-400 text-gray-400'
+                      : 'bg-black/5 border-black/10 hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-gray-600'
+                    : isDarkMode
+                      ? 'bg-white/5 border-white/10 text-gray-600 cursor-not-allowed'
+                      : 'bg-black/5 border-black/5 text-gray-400 cursor-not-allowed'}`}
                 title="Eliminar permanentemente"
               >
                 🗑
@@ -594,8 +703,8 @@ export default function AdminPanel() {
             </div>
 
             {/* Station List */}
-            <div className="border-t border-white/5 pt-3">
-              <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-2">
+            <div className={`border-t pt-3 ${isDarkMode ? 'border-white/5' : 'border-gray-200'}`}>
+              <p className={`text-[10px] font-mono uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-600'}`}>
                 Estaciones ({nodes.length})
               </p>
               <div className="space-y-1 max-h-[300px] overflow-y-auto">
@@ -604,21 +713,30 @@ export default function AdminPanel() {
                   return (
                     <div
                       key={node.id}
-                      className={`flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition-colors
-                        ${selectedNodeId === node.id ? 'bg-white/8 border border-white/10' : ''}`}
+                      className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors
+                        ${isDarkMode 
+                          ? `hover:bg-white/5 ${selectedNodeId === node.id ? 'bg-white/8 border border-white/10' : ''}` 
+                          : `hover:bg-black/5 ${selectedNodeId === node.id ? 'bg-black/5 border border-black/10' : ''}`
+                        }`}
                       onClick={() => selectNode(node.id)}
                     >
                       <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                         style={{ backgroundColor: cat.color || '#4fc3f7', opacity: node.disabled ? 0.3 : 1 }} />
-                      <span className={`text-xs flex-1 truncate ${node.disabled ? 'text-gray-600 line-through' : 'text-gray-300'}`}>
+                      <span className={`text-xs flex-1 truncate ${
+                        node.disabled 
+                          ? 'text-gray-600 line-through' 
+                          : isDarkMode ? 'text-gray-300' : 'text-gray-800'
+                      }`}>
                         {node.tooltipTitle}
                       </span>
-                      <span className="text-[9px] font-mono text-gray-600">
+                      <span className={`text-[9px] font-mono ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>
                         {cat.label || node.type}
                       </span>
                       <button
                         onClick={(e) => { e.stopPropagation(); setEditingId(node.id); }}
-                        className="text-gray-600 hover:text-cauce-accent-blue text-[10px] font-mono transition-colors"
+                        className={`text-[10px] font-mono transition-colors ${
+                          isDarkMode ? 'text-gray-600 hover:text-cauce-accent-blue' : 'text-gray-500 hover:text-sky-600'
+                        }`}
                       >
                         editar
                       </button>

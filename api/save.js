@@ -15,7 +15,14 @@ export default async function handler(req, res) {
   }
   
   try {
-    const payload = req.body;
+    const data = req.body;
+    const payload = {
+        nodes: data.nodes,
+        cameraConfig: data.cameraConfig,
+        userLocation: data.userLocation,
+        showAdvancedInfo: data.showAdvancedInfo !== undefined ? data.showAdvancedInfo : false,
+        updatedAt: new Date().toISOString()
+      };
     
     // Connect to standard Redis using REDIS_URL
     const client = createClient({

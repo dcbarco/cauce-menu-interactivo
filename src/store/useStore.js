@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { initialNodes, defaultCameraConfig, defaultUserLocation } from '../config/data';
+import { initialNodes, defaultCameraConfig, defaultUserLocation, showAdvancedInfo as defaultShowAdvancedInfo } from '../config/data';
 
 // Read initial theme from localStorage (default to dark)
 const getInitialTheme = () => {
@@ -23,6 +23,7 @@ export const useStore = create((set, get) => ({
     activeCategory: null, // For bottom category filter
     show3DModel: true,
     isDarkMode: getInitialTheme(),
+    showAdvancedInfo: defaultShowAdvancedInfo,
 
     // Actions
     fetchData: async () => {
@@ -34,7 +35,8 @@ export const useStore = create((set, get) => ({
                     set({ 
                         nodes: data.nodes, 
                         cameraConfig: data.cameraConfig || defaultCameraConfig, 
-                        userLocation: data.userLocation || defaultUserLocation 
+                        userLocation: data.userLocation || defaultUserLocation,
+                        showAdvancedInfo: data.showAdvancedInfo !== undefined ? data.showAdvancedInfo : defaultShowAdvancedInfo
                     });
                 }
             }
@@ -95,6 +97,7 @@ export const useStore = create((set, get) => ({
     setCameraConfig: (config) => set({ cameraConfig: config }),
     setGlobalScale: (scale) => set({ globalScale: scale }),
     setUserLocation: (loc) => set({ userLocation: loc }),
+    setShowAdvancedInfo: (val) => set({ showAdvancedInfo: val }),
     getCameraSnapshot: null,
     setGetCameraSnapshot: (fn) => set({ getCameraSnapshot: fn }),
 
@@ -117,7 +120,8 @@ export const useStore = create((set, get) => ({
             nodes: state.nodes,
             cameraConfig: latestCamera,
             userLocation: state.userLocation,
-            globalScale: state.globalScale
+            globalScale: state.globalScale,
+            showAdvancedInfo: state.showAdvancedInfo
         }, null, 2);
     }
 }));
