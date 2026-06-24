@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store/useStore';
 import { CATEGORIES } from '../../config/constants';
-
+import { initialNodes } from '../../config/data';
 const ADMIN_PASSWORD = 'admin';
 
 /* ====== Password Gate ====== */
@@ -386,6 +386,12 @@ export default function AdminPanel() {
     });
   };
 
+  const handleLoadDefaults = () => {
+    if (confirm('¿Cargar las nuevas estaciones por defecto de data.js? (Luego haz clic en Grabar)')) {
+      useStore.setState({ nodes: initialNodes });
+    }
+  };
+
   const handleSaveToServer = async () => {
     try {
       const state = useStore.getState();
@@ -599,6 +605,15 @@ export default function AdminPanel() {
 
             {/* Save Actions */}
             <div className="flex gap-2 mb-3">
+              <button onClick={handleLoadDefaults}
+                title="Cargar estaciones por defecto"
+                className={`flex-1 text-[10px] font-mono py-2 rounded-lg transition-all border ${
+                  isDarkMode
+                    ? 'bg-purple-900/20 hover:bg-purple-900/30 border border-purple-500/30 text-purple-400'
+                    : 'bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700'
+                }`}>
+                🔄 Reset
+              </button>
               <button onClick={handleExport}
                 title="Copiar JSON al portapapeles"
                 className={`flex-1 text-[10px] font-mono py-2 rounded-lg transition-all border
@@ -610,10 +625,10 @@ export default function AdminPanel() {
                       ? 'bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 text-orange-400'
                       : 'bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-755'
                   }`}>
-                {copied ? '✓ Copiado' : '📷 Snapshot'}
+                {copied ? '✓ Copiado' : '📷 Snap'}
               </button>
               <button onClick={handleSaveToServer}
-                title="Guardar en data.js"
+                title="Guardar en base de datos"
                 className={`flex-1 text-[10px] font-mono py-2 rounded-lg transition-all border
                   ${saved
                     ? isDarkMode

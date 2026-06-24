@@ -5,8 +5,8 @@ import { initialNodes, defaultCameraConfig, defaultUserLocation, showAdvancedInf
 const getInitialTheme = () => {
     try {
         const saved = localStorage.getItem('cauce-theme');
-        return saved === 'light' ? false : true; // default dark
-    } catch { return true; }
+        return saved === 'dark' ? true : false; // default light
+    } catch { return false; }
 };
 
 export const useStore = create((set, get) => ({
