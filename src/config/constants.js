@@ -62,6 +62,18 @@ export const CATEGORIES = {
     icon: 'totem',
     iconImage: '/iconos/TOTEM.png',
   },
+  ANALOGICO: {
+    label: 'Análogo',
+    color: '#a78bfa',
+    icon: 'analogico',
+    iconImage: null,
+  },
+  OBJETO3D: {
+    label: 'Objeto 3D',
+    color: '#f472b6',
+    icon: 'objeto3d',
+    iconImage: null,
+  },
 };
 
 // ===== SVG Paths para Íconos (matching the circular icons in prototype) =====
@@ -82,6 +94,10 @@ export const ICON_PATHS = {
   pantalla: 'M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z',
   // Totem/kiosk
   totem: 'M8 2v2H4v4h2V4h2v4h2V4h2v4h2V4h-2V2H8zm-2 8v10c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V10H6zm8 2v6h-4v-6h4z',
+  // Analog / hands-on physical
+  analogico: 'M18 4H6C4.9 4 4 4.9 4 6v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1.5 9H13v3.5c0 .28-.22.5-.5.5h-1c-.28 0-.5-.22-.5-.5V13H7.5c-.28 0-.5-.22-.5-.5v-1c0-.28.22-.5.5-.5H11V7.5c0-.28.22-.5.5-.5h1c.28 0 .5.22.5.5V11h3.5c.28 0 .5.22.5.5v1c0 .28-.22.5-.5.5z',
+  // 3D object / cube
+  objeto3d: 'M12 2L2 7l10 5 10-5-10-5zm0 7.5L4.47 5.77 12 2.27l7.53 3.5L12 9.5zM2 17l10 5 10-5v-2l-10 5L2 15v2zm0-4l10 5 10-5v-2l-10 5L2 11v2z',
   // User icon
   user: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
   // Admin shield

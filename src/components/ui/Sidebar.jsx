@@ -30,6 +30,10 @@ function getLightModeCategoryColor(type) {
       return '#115e59'; // Deep teal
     case 'TOTEM':
       return '#7f1d1d'; // Deep red
+    case 'ANALOGICO':
+      return '#4c1d95'; // Deep violet
+    case 'OBJETO3D':
+      return '#831843'; // Deep pink
     default:
       return '#7c2d12'; // Default deep orange/red
   }

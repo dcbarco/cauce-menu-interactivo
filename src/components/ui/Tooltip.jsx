@@ -161,6 +161,8 @@ function getHueRotation(hexColor) {
     '#6366f1': 240,  // indigo (REPOSITORIO)
     '#14b8a6': 170,  // teal (PANTALLA)
     '#ef4444': 0,    // red (TOTEM)
+    '#a78bfa': 270,  // violet (ANALOGICO)
+    '#f472b6': 340,  // pink (OBJETO3D)
   };
   return map[hexColor] || 0;
 }
