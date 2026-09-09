@@ -9,6 +9,7 @@ import Tooltip from './components/ui/Tooltip';
 import AdminPanel from './components/ui/AdminPanel';
 import Legend from './components/ui/Legend';
 import ThemeToggle from './components/ui/ThemeToggle';
+import Screensaver from './components/ui/Screensaver';
 
 function LoadingScreen() {
   const isDarkMode = useStore(s => s.isDarkMode);
@@ -395,6 +396,15 @@ export default function App() {
       {isAdminMode && (
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-orange-500 to-transparent z-30" />
       )}
+
+      {/* Screensaver (kiosco - capa máxima, 5 min inactividad) */}
+      <Screensaver
+        onWake={() => {
+          // Al despertar del screensaver, asegurarse de que la UI esté limpia
+          useStore.getState().clearSelection();
+          useStore.getState().triggerCameraReset();
+        }}
+      />
     </div>
   );
 }
