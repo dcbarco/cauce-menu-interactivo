@@ -13,68 +13,64 @@ export const COLORS = {
 };
 
 // ===== Categorías de Estaciones (matching prototype) =====
-// ⚠️ CAMBIO PROVISIONAL: Colores reducidos a 2 tipologías.
-//    → Azul #2B8190 = Estaciones digitales/tecnológicas
-//    → Amarillo #F2C743 = Estaciones analógicas
-//    Para REVERTIR: copiar constants.BACKUP_ORIGINAL_COLORS.js sobre este archivo.
 export const CATEGORIES = {
   VR: {
     label: 'VR',
-    color: '#2B8190', // DIGITAL
+    color: '#8b5cf6',
     icon: 'vr',
     iconImage: '/iconos/VR.png',
   },
   TACTIL: {
     label: 'Táctil',
-    color: '#2B8190', // DIGITAL
+    color: '#10b981',
     icon: 'tactil',
     iconImage: '/iconos/TACTIL.png',
   },
   PORTATIL: {
     label: 'Portátil',
-    color: '#2B8190', // DIGITAL
+    color: '#06b6d4',
     icon: 'portatil',
     iconImage: null, // No PNG available, use SVG fallback
   },
   AUDIO: {
     label: 'Audio',
-    color: '#F2C743', // ANALÓGICO
+    color: '#f59e0b',
     icon: 'audio',
     iconImage: '/iconos/AUDIO.png',
   },
   AR: {
     label: 'AR',
-    color: '#2B8190', // DIGITAL
+    color: '#ec4899',
     icon: 'ar',
     iconImage: '/iconos/AR.png',
   },
   REPOSITORIO: {
     label: 'Repositorio',
-    color: '#2B8190', // DIGITAL
+    color: '#6366f1',
     icon: 'repositorio',
     iconImage: '/iconos/REPOSITORIO.png',
   },
   PANTALLA: {
     label: 'Pantalla',
-    color: '#2B8190', // DIGITAL
+    color: '#14b8a6',
     icon: 'pantalla',
     iconImage: null, // No PNG available, use SVG fallback
   },
   TOTEM: {
     label: 'Totem',
-    color: '#2B8190', // DIGITAL
+    color: '#ef4444',
     icon: 'totem',
     iconImage: '/iconos/TOTEM.png',
   },
   ANALOGICO: {
     label: 'Análogo',
-    color: '#F2C743', // ANALÓGICO
+    color: '#a78bfa',
     icon: 'analogico',
     iconImage: null,
   },
   OBJETO3D: {
     label: 'Objeto 3D',
-    color: '#F2C743', // ANALÓGICO
+    color: '#f472b6',
     icon: 'objeto3d',
     iconImage: null,
   },

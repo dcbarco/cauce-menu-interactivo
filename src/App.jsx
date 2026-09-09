@@ -61,9 +61,12 @@ function CameraAnimator({ controlsRef }) {
   const { camera } = useThree();
 
   const [targetParams, setTargetParams] = React.useState(null);
+  const forcedResetRef = useRef(false); // Prevents user events from cancelling inactivity resets
   
   React.useEffect(() => {
     const handleUserInteraction = () => {
+      // Don't cancel the animation if it's a forced inactivity reset
+      if (forcedResetRef.current) return;
       setTargetParams(null);
     };
     window.addEventListener('pointerdown', handleUserInteraction);
@@ -74,9 +77,16 @@ function CameraAnimator({ controlsRef }) {
     };
   }, []);
 
+  // Track previous cameraResetForceTrigger to detect forced resets
+  const prevTriggerRef = useRef(cameraResetForceTrigger);
+
   React.useEffect(() => {
     // Don't animate camera when in node edit mode or dragging
     if (isNodeEditMode || draggedNodeId) return;
+
+    // Detect if this was triggered by a forced inactivity reset
+    const isForced = cameraResetForceTrigger !== prevTriggerRef.current;
+    prevTriggerRef.current = cameraResetForceTrigger;
 
     if (selectedNodeId) {
       const node = nodes.find(n => n.id === selectedNodeId);
@@ -92,12 +102,14 @@ function CameraAnimator({ controlsRef }) {
         const newPos = new THREE.Vector3().copy(nodePos).add(dir.multiplyScalar(ZOOM_DISTANCE));
         newPos.y = Math.max(newPos.y, 12); // Ensure it doesn't go below ground level too much
 
+        forcedResetRef.current = false;
         setTargetParams({ target: nodePos, pos: newPos });
       }
     } else {
       // Return to default
       const defaultTarget = new THREE.Vector3(cameraConfig.target.x, cameraConfig.target.y, cameraConfig.target.z);
       const defaultPos = new THREE.Vector3(cameraConfig.pos.x, cameraConfig.pos.y, cameraConfig.pos.z);
+      forcedResetRef.current = isForced;
       setTargetParams({ target: defaultTarget, pos: defaultPos });
     }
   }, [selectedNodeId, nodes, cameraConfig, cameraResetForceTrigger, isNodeEditMode, draggedNodeId]);
@@ -110,9 +122,15 @@ function CameraAnimator({ controlsRef }) {
       const step = Math.min(4 * delta, 1);
       controlsRef.current.target.lerp(targetParams.target, step);
       camera.position.lerp(targetParams.pos, step);
+      controlsRef.current.update(); // Keep OrbitControls in sync with animated values
       
-      if (controlsRef.current.target.distanceTo(targetParams.target) < 0.5 &&
-          camera.position.distanceTo(targetParams.pos) < 0.5) {
+      if (controlsRef.current.target.distanceTo(targetParams.target) < 0.3 &&
+          camera.position.distanceTo(targetParams.pos) < 0.3) {
+        // Snap to exact position for precision
+        camera.position.copy(targetParams.pos);
+        controlsRef.current.target.copy(targetParams.target);
+        controlsRef.current.update();
+        forcedResetRef.current = false;
         setTargetParams(null);
       }
     }
@@ -244,14 +262,17 @@ export default function App() {
     useStore.getState().fetchData();
 
     let timeoutId;
-    const INACTIVITY_TIME = 3 * 60 * 1000; // 3 minutos
+    const INACTIVITY_TIME = 1 * 60 * 1000; // 1 minuto
 
     const handleActivity = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        // Reset view after 3 minutes of inactivity
-        useStore.getState().clearSelection();
-        useStore.getState().triggerCameraReset();
+        // Reset everything to default state after inactivity
+        const store = useStore.getState();
+        store.clearSelection();
+        if (store.isAdminMode) store.logout();
+        if (store.activeCategory) store.setActiveCategory(null);
+        store.triggerCameraReset();
       }, INACTIVITY_TIME);
     };
 

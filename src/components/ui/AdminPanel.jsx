@@ -315,6 +315,8 @@ export default function AdminPanel() {
   const [saved, setSaved] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [cornerClicks, setCornerClicks] = useState([]);
+  const [fullscreenCornerTaps, setFullscreenCornerTaps] = useState(0);
+  const fullscreenTapTimerRef = React.useRef(null);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -335,6 +337,37 @@ export default function AdminPanel() {
       }
     }
   };
+
+  // Fullscreen shortcut: 4 rapid taps on bottom-right corner
+  const handleFullscreenCornerTap = () => {
+    setFullscreenCornerTaps(prev => {
+      const newCount = prev + 1;
+      // Reset the timeout on each tap (2-second window)
+      if (fullscreenTapTimerRef.current) {
+        clearTimeout(fullscreenTapTimerRef.current);
+      }
+      fullscreenTapTimerRef.current = setTimeout(() => {
+        setFullscreenCornerTaps(0);
+      }, 2000);
+
+      if (newCount >= 4) {
+        // Toggle fullscreen
+        clearTimeout(fullscreenTapTimerRef.current);
+        setFullscreenCornerTaps(0);
+        toggleFullscreen();
+      }
+      return newCount >= 4 ? 0 : newCount;
+    });
+  };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (fullscreenTapTimerRef.current) {
+        clearTimeout(fullscreenTapTimerRef.current);
+      }
+    };
+  }, []);
 
   const editingNode = nodes.find(n => n.id === editingId);
   const draggedNode = nodes.find(n => n.id === draggedNodeId);
@@ -436,12 +469,43 @@ export default function AdminPanel() {
 
   return (
     <div className="pointer-events-auto">
-      {/* Invisible gesture zones for admin access (Top-Left, Top-Right, Bottom-Right, Bottom-Left) */}
+      {/* Fullscreen shortcut: 4 taps on bottom-right corner with discrete visual indicator */}
+      <div 
+        className="fixed bottom-0 right-0 z-[60] w-20 h-20 pointer-events-auto flex items-end justify-end p-2 cursor-pointer group"
+        onClick={() => {
+          handleFullscreenCornerTap();
+          if (!isAdminMode) {
+            handleCornerClick(2);
+          }
+        }}
+        title="Pantalla Completa (4 toques)"
+      >
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 ${
+          fullscreenCornerTaps > 0 
+            ? 'bg-orange-500/40 border border-orange-400/60 scale-110 shadow-lg shadow-orange-500/20' 
+            : isDarkMode 
+              ? 'bg-white/[0.06] hover:bg-white/20 border border-white/15 text-white/40 hover:text-white/80' 
+              : 'bg-black/[0.06] hover:bg-black/20 border border-black/15 text-black/40 hover:text-black/80'
+        }`}>
+          {/* Subtle frame/fullscreen icon */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-60 group-hover:opacity-100 transition-opacity">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+          </svg>
+        </div>
+
+        {/* Micro feedback badge during multi-tap sequence */}
+        {fullscreenCornerTaps > 0 && (
+          <div className="absolute top-1 left-1 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-mono font-bold flex items-center justify-center shadow-md animate-bounce">
+            {fullscreenCornerTaps}
+          </div>
+        )}
+      </div>
+
+      {/* Invisible gesture zones for admin access (Top-Left, Top-Right, Bottom-Left - Bottom-Right handled above) */}
       {!isAdminMode && (
         <div className="fixed inset-0 z-50 pointer-events-none">
           <div className="absolute top-0 left-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(0)} />
-          <div className="absolute top-0 right-0 w-16 h-3 pointer-events-auto" onClick={() => handleCornerClick(1)} />
-          <div className="absolute bottom-0 right-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(2)} />
+          <div className="absolute top-0 right-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(1)} />
           <div className="absolute bottom-0 left-0 w-16 h-16 pointer-events-auto" onClick={() => handleCornerClick(3)} />
         </div>
       )}
