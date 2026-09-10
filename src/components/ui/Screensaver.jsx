@@ -47,15 +47,20 @@ const screensaverCSS = `
   50% { opacity: 0.9; }
 }
 @keyframes ss-wave-sweep {
-  0% { transform: translateY(-30%); }
-  100% { transform: translateY(120%); }
+  0% { transform: translateY(-50vh); }
+  100% { transform: translateY(120vh); }
 }
 @keyframes ss-wave-slide {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-@keyframes ss-ripple-expand {
-  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+@keyframes ss-ripple-wash {
+  0% { transform: translate(-50%, -50%) scale(0.01); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+@keyframes ss-ripple-ring {
+  0% { transform: translate(-50%, -50%) scale(0.02); opacity: 0.8; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
 }
 `;
@@ -152,13 +157,13 @@ export default function Screensaver({ onWake }) {
     setRipple({ x, y, key: Date.now() });
     setExiting(true);
 
-    // Let ripple play, then fade out cleanly
+    // Let ripple fill the screen (approx 900ms) before fading out the screensaver container
     setTimeout(() => {
       setVisible(false);
       setExiting(false);
       onWake?.();
       startTimer();
-    }, 600);
+    }, 900);
   }, [onWake, startTimer, exiting]);
 
   // Determine the max dimension for the ripple circle
@@ -187,9 +192,22 @@ export default function Screensaver({ onWake }) {
             onPointerDown={handleTouch}
           >
 
-            {/* Click ripple – multiple expanding rings via CSS animation */}
+            {/* Click ripple – combined expanding color wash + water rings */}
             {ripple && (
               <div className="absolute pointer-events-none z-[9999]" style={{ left: ripple.x, top: ripple.y }}>
+                {/* Soft expanding color wash transition - Stays opaque to mask the screen */}
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    width: maxDim * 1.5,
+                    height: maxDim * 1.5,
+                    background: 'radial-gradient(circle, rgba(43, 129, 144, 0.85) 0%, rgba(43, 129, 144, 0.75) 45%, rgba(43, 129, 144, 0) 75%)',
+                    animation: 'ss-ripple-wash 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+
+                {/* 3 water droplet ripple rings - Fades out */}
                 {[0, 1, 2].map(ring => (
                   <div
                     key={`${ripple.key}-${ring}`}
@@ -197,9 +215,9 @@ export default function Screensaver({ onWake }) {
                     style={{
                       width: maxDim,
                       height: maxDim,
-                      border: `${12 - ring * 3}px solid rgba(100, 210, 255, ${0.7 - ring * 0.2})`,
-                      boxShadow: `0 0 ${20 + ring * 10}px rgba(100, 210, 255, 0.4), inset 0 0 ${10 + ring * 5}px rgba(43, 129, 144, 0.2)`,
-                      animation: `ss-ripple-expand 1.4s ${ring * 0.12}s cubic-bezier(0.1, 0.8, 0.3, 1) both`,
+                      border: `${12 - ring * 3}px solid rgba(100, 210, 255, ${0.8 - ring * 0.2})`,
+                      boxShadow: `0 0 ${20 + ring * 10}px rgba(43, 129, 144, 0.5), inset 0 0 ${10 + ring * 5}px rgba(43, 129, 144, 0.3)`,
+                      animation: `ss-ripple-ring 1.2s ${ring * 0.12}s cubic-bezier(0.2, 0.8, 0.2, 1) both`,
                       willChange: 'transform, opacity',
                     }}
                   />
@@ -210,16 +228,32 @@ export default function Screensaver({ onWake }) {
             {/* Particles – pure CSS */}
             <Particles />
 
-            {/* Subtle wave light sweep – CSS only, no SVG, no blur */}
-            <div
-              className="absolute left-0 right-0 pointer-events-none"
-              style={{
-                height: '12vh',
-                background: 'linear-gradient(to bottom, transparent 0%, rgba(43,180,255,0.08) 40%, rgba(100,230,255,0.12) 50%, rgba(43,180,255,0.08) 60%, transparent 100%)',
-                animation: 'ss-wave-sweep 10s linear infinite',
-                willChange: 'transform',
-              }}
-            />
+            {/* Wavy sweep – Curved CSS overlays to look like water waves */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div
+                className="absolute left-[-10%] right-[-10%]"
+                style={{
+                  height: '45vh',
+                  borderRadius: '100% 100% 0 0',
+                  borderTop: '2px solid rgba(43, 129, 144, 0.25)',
+                  background: 'linear-gradient(to bottom, rgba(43, 129, 144, 0.12) 0%, transparent 100%)',
+                  animation: 'ss-wave-sweep 12s linear infinite',
+                  willChange: 'transform',
+                }}
+              />
+              <div
+                className="absolute left-[-20%] right-[-5%]"
+                style={{
+                  height: '55vh',
+                  borderRadius: '100% 100% 0 0',
+                  borderTop: '2px solid rgba(43, 129, 144, 0.15)',
+                  background: 'linear-gradient(to bottom, rgba(43, 129, 144, 0.08) 0%, transparent 100%)',
+                  animation: 'ss-wave-sweep 9s linear infinite',
+                  animationDelay: '4s',
+                  willChange: 'transform',
+                }}
+              />
+            </div>
 
             {/* Main content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-8">
