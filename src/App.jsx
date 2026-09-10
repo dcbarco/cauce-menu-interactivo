@@ -258,6 +258,65 @@ export default function App() {
   const disableOrbitRotation = isNodeEditMode;
   const disableOrbitAll = isDragging;
 
+  const [batteryLevel, setBatteryLevel] = React.useState(null);
+  const [isCharging, setIsCharging] = React.useState(true);
+
+  // Wake Lock & Battery Monitor
+  useEffect(() => {
+    let wakeLock = null;
+
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => {
+            if (document.visibilityState === 'visible') {
+              requestWakeLock();
+            }
+          });
+        }
+      } catch (err) {
+        console.error(`Wake Lock Error: ${err.name}, ${err.message}`);
+      }
+    };
+
+    requestWakeLock();
+
+    const handleVisibilityChange = () => {
+      if (wakeLock !== null && document.visibilityState === 'visible') {
+        requestWakeLock();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Battery
+    let battery = null;
+    const updateBatteryInfo = () => {
+      if (battery) {
+        setBatteryLevel(Math.round(battery.level * 100));
+        setIsCharging(battery.charging);
+      }
+    };
+
+    if ('getBattery' in navigator) {
+      navigator.getBattery().then((b) => {
+        battery = b;
+        updateBatteryInfo();
+        battery.addEventListener('levelchange', updateBatteryInfo);
+        battery.addEventListener('chargingchange', updateBatteryInfo);
+      });
+    }
+
+    return () => {
+      if (wakeLock !== null) wakeLock.release();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (battery) {
+        battery.removeEventListener('levelchange', updateBatteryInfo);
+        battery.removeEventListener('chargingchange', updateBatteryInfo);
+      }
+    };
+  }, []);
+
   // Global Inactivity Timer (3 minutes) and initial fetch
   useEffect(() => {
     useStore.getState().fetchData();
@@ -395,6 +454,16 @@ export default function App() {
       {/* Admin mode indicator bar */}
       {isAdminMode && (
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-orange-500 to-transparent z-30" />
+      )}
+
+      {/* Battery Low Warning Overlay */}
+      {batteryLevel !== null && batteryLevel <= 10 && !isCharging && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[10000] bg-red-600 text-white px-6 py-2 rounded-full font-bold shadow-lg animate-pulse flex items-center gap-2">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          Batería baja ({batteryLevel}%) - Conecte el cargador
+        </div>
       )}
 
       {/* Screensaver (kiosco - capa máxima, 5 min inactividad) */}

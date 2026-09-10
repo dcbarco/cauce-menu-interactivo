@@ -2,99 +2,34 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /* ─────────────────────────────────────────────
-   Water Canvas  –  WebGL-free, puro Canvas 2D
-   Simulación de ondas de interferencia
+   Optimized Click Ripple (Reemplaza WaterCanvas)
 ───────────────────────────────────────────── */
-function WaterCanvas({ clickPos }) {
-  const canvasRef = useRef(null);
-  const animRef = useRef(null);
-  const dropsRef = useRef([]);
-
-  // Spawn drop when clickPos changes
-  useEffect(() => {
-    if (clickPos) {
-      dropsRef.current.push({
-        x: clickPos.x,
-        y: clickPos.y,
-        r: 0,
-        maxR: Math.max(window.innerWidth, window.innerHeight) * 1.5,
-        speed: 25, // velocidad rápida para cubrir pantalla
-        alpha: 1,
-      });
-    }
-  }, [clickPos]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // App original dark background gradient
-      const grad = ctx.createRadialGradient(
-        canvas.width * 0.5, canvas.height * 0.5, 0,
-        canvas.width * 0.5, canvas.height * 0.5, canvas.width * 0.8
-      );
-      grad.addColorStop(0,  '#1a2a44');
-      grad.addColorStop(0.5,'#08111e');
-      grad.addColorStop(1,  '#000000');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Apply blur filter for organic water look
-      ctx.filter = 'blur(6px)';
-
-      // Draw & evolve the single click drop
-      dropsRef.current = dropsRef.current.filter(d => {
-        d.r += d.speed;
-        const progress = d.r / d.maxR;
-        const alpha = d.alpha * (1 - progress) * (1 - progress);
-
-        if (alpha < 0.01) return false;
-
-        for (let ring = 0; ring < 3; ring++) {
-          const rr = d.r - ring * 80; // anillos más separados al expandirse rápido
-          if (rr < 0) continue;
-          const rAlpha = alpha * (1 - ring * 0.25);
-
-          ctx.beginPath();
-          ctx.ellipse(d.x, d.y, rr, rr, 0, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(100, 210, 255, ${rAlpha * 0.8})`;
-          ctx.lineWidth = 15 + ring * 10;
-          ctx.stroke();
-        }
-
-        return true;
-      });
-      
-      ctx.filter = 'none';
-
-      animRef.current = requestAnimationFrame(draw);
-    };
-
-    animRef.current = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(animRef.current);
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
+function ClickRipple({ clickPos }) {
+  if (!clickPos) return null;
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-      style={{ display: 'block' }}
-    />
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+      {[0, 1, 2].map(ring => (
+        <motion.div
+          key={`${clickPos.x}-${clickPos.y}-${ring}`}
+          className="absolute rounded-full border border-[rgba(100,210,255,0.6)]"
+          style={{
+            left: clickPos.x,
+            top: clickPos.y,
+            x: '-50%',
+            y: '-50%',
+            borderWidth: 15 + ring * 10,
+            boxShadow: '0 0 20px rgba(100,210,255,0.4)',
+          }}
+          initial={{ width: 0, height: 0, opacity: 1 - ring * 0.25 }}
+          animate={{ 
+            width: Math.max(window.innerWidth, window.innerHeight) * 2.5, 
+            height: Math.max(window.innerWidth, window.innerHeight) * 2.5, 
+            opacity: 0 
+          }}
+          transition={{ duration: 1.5, delay: ring * 0.08, ease: "easeOut" }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -246,9 +181,10 @@ export default function Screensaver({ onWake }) {
       {visible && (
         <motion.div
           key="screensaver"
-          className="fixed inset-0 z-[9999] overflow-hidden cursor-pointer select-none bg-transparent"
-          initial={{ opacity: 0, filter: 'blur(10px) brightness(0.8)' }}
-          animate={{ opacity: 1, filter: 'blur(0px) brightness(1)' }}
+          className="fixed inset-0 z-[9999] overflow-hidden cursor-pointer select-none"
+          style={{ background: 'radial-gradient(circle at center, #1a2a44 0%, #08111e 50%, #000000 100%)' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{ 
             opacity: 0, 
             scale: 1.15, 
@@ -259,7 +195,7 @@ export default function Screensaver({ onWake }) {
           onPointerDown={handleTouch}
         >
           {/* Water background */}
-          <WaterCanvas clickPos={clickPos} />
+          <ClickRipple clickPos={clickPos} />
 
           {/* Floating particles */}
           <Particles count={32} />
