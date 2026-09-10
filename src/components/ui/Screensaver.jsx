@@ -188,7 +188,7 @@ export default function Screensaver({ onWake }) {
   const timerRef = useRef(null);
   const visibleRef = useRef(false);
   const isPreviewMode = new URLSearchParams(window.location.search).get('screensaver') === '1';
-  const SCREENSAVER_DELAY = isPreviewMode ? 3000 : 5 * 60 * 1000; // 3s en preview, 5min en producción
+  const SCREENSAVER_DELAY = isPreviewMode ? 3000 : 3 * 60 * 1000; // 3s en preview, 3min en producción
 
   const startTimer = useCallback(() => {
     clearTimeout(timerRef.current);
@@ -197,7 +197,7 @@ export default function Screensaver({ onWake }) {
       setClickPos(null);
       setVisible(true);
     }, SCREENSAVER_DELAY);
-  }, []);
+  }, [SCREENSAVER_DELAY]);
 
   const handleActivity = useCallback(() => {
     // Solo reiniciar el timer si el screensaver NO está visible

@@ -263,7 +263,7 @@ export default function App() {
     useStore.getState().fetchData();
 
     let timeoutId;
-    const INACTIVITY_TIME = 1 * 60 * 1000; // 1 minuto
+    const INACTIVITY_TIME = 3 * 60 * 1000; // 3 minutos
 
     const handleActivity = () => {
       clearTimeout(timeoutId);
