@@ -55,7 +55,7 @@ const screensaverCSS = `
   100% { transform: translateX(-50%); }
 }
 @keyframes ss-ripple-expand {
-  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.7; }
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
 }
 `;
@@ -187,21 +187,24 @@ export default function Screensaver({ onWake }) {
             onPointerDown={handleTouch}
           >
 
-            {/* Click ripple – single expanding circle via CSS animation */}
+            {/* Click ripple – multiple expanding rings via CSS animation */}
             {ripple && (
-              <div
-                key={ripple.key}
-                className="absolute rounded-full pointer-events-none"
-                style={{
-                  left: ripple.x,
-                  top: ripple.y,
-                  width: maxDim,
-                  height: maxDim,
-                  border: '3px solid rgba(100,210,255,0.5)',
-                  animation: 'ss-ripple-expand 1s ease-out forwards',
-                  willChange: 'transform, opacity',
-                }}
-              />
+              <div className="absolute pointer-events-none z-[9999]" style={{ left: ripple.x, top: ripple.y }}>
+                {[0, 1, 2].map(ring => (
+                  <div
+                    key={`${ripple.key}-${ring}`}
+                    className="absolute rounded-full"
+                    style={{
+                      width: maxDim,
+                      height: maxDim,
+                      border: \`\${12 - ring * 3}px solid rgba(100, 210, 255, \${0.7 - ring * 0.2})\`,
+                      boxShadow: \`0 0 \${20 + ring * 10}px rgba(100, 210, 255, 0.4), inset 0 0 \${10 + ring * 5}px rgba(43, 129, 144, 0.2)\`,
+                      animation: \`ss-ripple-expand 1.4s \${ring * 0.12}s cubic-bezier(0.1, 0.8, 0.3, 1) both\`,
+                      willChange: 'transform, opacity',
+                    }}
+                  />
+                ))}
+              </div>
             )}
 
             {/* Particles – pure CSS */}
