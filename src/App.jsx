@@ -426,7 +426,7 @@ export default function App() {
       </div>
 
       {/* Top-right area: Theme Toggle + Instruction hint */}
-      <div className="absolute top-4 right-4 z-10 pointer-events-auto flex items-center gap-3">
+      <div className="absolute top-4 right-4 z-[100] pointer-events-auto flex items-center gap-3">
         {/* Instruction hint */}
         <div className={`px-3 py-1.5 flex items-center gap-2 text-[11px] font-mono pointer-events-none hidden md:flex ${
           isDarkMode 
