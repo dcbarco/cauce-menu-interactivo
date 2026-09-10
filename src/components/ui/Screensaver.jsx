@@ -267,16 +267,35 @@ export default function Screensaver({ onWake }) {
           {/* Decorative ripple rings */}
           <RippleRings />
 
-          {/* Horizontal scan line (subtle) */}
+          {/* Movimiento de ola de luz (reemplaza línea scan) */}
           <motion.div
-            className="absolute left-0 right-0 h-px pointer-events-none"
-            style={{
-              background: 'linear-gradient(90deg, transparent, rgba(43,180,255,0.3), rgba(100,230,255,0.5), rgba(43,180,255,0.3), transparent)',
-              boxShadow: '0 0 12px rgba(43,180,255,0.4)',
-            }}
-            animate={{ top: ['-2%', '102%'] }}
-            transition={{ duration: 7, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
-          />
+            className="absolute left-0 right-0 pointer-events-none opacity-50 mix-blend-screen"
+            style={{ height: '25vh', filter: 'blur(6px)' }}
+            animate={{ top: ['-25%', '110%'] }}
+            transition={{ duration: 11, repeat: Infinity, ease: 'linear' }}
+          >
+            <motion.svg 
+              viewBox="0 0 2880 320" 
+              className="w-[200%] h-full" 
+              preserveAspectRatio="none"
+              animate={{ x: ['0%', '-50%'] }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+            >
+              <path 
+                fill="none" 
+                stroke="url(#wave-stroke)" 
+                strokeWidth="24"
+                d="M0,160 C320,300, 400,20, 720,160 C1040,300, 1120,20, 1440,160 C1760,300, 1840,20, 2160,160 C2480,300, 2560,20, 2880,160"
+              />
+              <defs>
+                <linearGradient id="wave-stroke" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="rgba(43,180,255,0)" />
+                  <stop offset="50%" stopColor="rgba(100,230,255,0.7)" />
+                  <stop offset="100%" stopColor="rgba(43,180,255,0)" />
+                </linearGradient>
+              </defs>
+            </motion.svg>
+          </motion.div>
 
           {/* Main content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-10">
