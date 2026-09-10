@@ -197,9 +197,9 @@ export default function Screensaver({ onWake }) {
                     style={{
                       width: maxDim,
                       height: maxDim,
-                      border: \`\${12 - ring * 3}px solid rgba(100, 210, 255, \${0.7 - ring * 0.2})\`,
-                      boxShadow: \`0 0 \${20 + ring * 10}px rgba(100, 210, 255, 0.4), inset 0 0 \${10 + ring * 5}px rgba(43, 129, 144, 0.2)\`,
-                      animation: \`ss-ripple-expand 1.4s \${ring * 0.12}s cubic-bezier(0.1, 0.8, 0.3, 1) both\`,
+                      border: `${12 - ring * 3}px solid rgba(100, 210, 255, ${0.7 - ring * 0.2})`,
+                      boxShadow: `0 0 ${20 + ring * 10}px rgba(100, 210, 255, 0.4), inset 0 0 ${10 + ring * 5}px rgba(43, 129, 144, 0.2)`,
+                      animation: `ss-ripple-expand 1.4s ${ring * 0.12}s cubic-bezier(0.1, 0.8, 0.3, 1) both`,
                       willChange: 'transform, opacity',
                     }}
                   />
