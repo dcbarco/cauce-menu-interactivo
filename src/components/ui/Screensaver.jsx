@@ -55,13 +55,13 @@ const screensaverCSS = `
   100% { transform: translateX(-50%); }
 }
 @keyframes ss-ripple-wash {
-  0% { transform: translate(-50%, -50%) scale(0.01); opacity: 0; }
+  0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
   20% { opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(40); opacity: 1; }
 }
 @keyframes ss-ripple-ring {
-  0% { transform: translate(-50%, -50%) scale(0.02); opacity: 0.8; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+  0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(25); opacity: 0; }
 }
 `;
 
@@ -166,11 +166,6 @@ export default function Screensaver({ onWake }) {
     }, 900);
   }, [onWake, startTimer, exiting]);
 
-  // Determine the max dimension for the ripple circle
-  const maxDim = typeof window !== 'undefined'
-    ? Math.max(window.innerWidth, window.innerHeight) * 2.5
-    : 3000;
-
   return (
     <>
       {/* Inject CSS keyframes once */}
@@ -199,25 +194,24 @@ export default function Screensaver({ onWake }) {
                 <div
                   className="absolute rounded-full"
                   style={{
-                    width: maxDim * 1.5,
-                    height: maxDim * 1.5,
-                    background: 'radial-gradient(circle, rgba(43, 129, 144, 0.85) 0%, rgba(43, 129, 144, 0.75) 45%, rgba(43, 129, 144, 0) 75%)',
+                    width: 150,
+                    height: 150,
+                    background: 'radial-gradient(circle, rgba(43, 129, 144, 0.95) 0%, rgba(43, 129, 144, 0.7) 40%, rgba(43, 129, 144, 0) 70%)',
                     animation: 'ss-ripple-wash 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both',
                     willChange: 'transform, opacity',
                   }}
                 />
 
-                {/* 3 water droplet ripple rings - Fades out */}
-                {[0, 1, 2].map(ring => (
+                {/* 2 water droplet ripple rings (Hardware Accelerated & Blurred by Scaling) */}
+                {[0, 1].map(ring => (
                   <div
                     key={`${ripple.key}-${ring}`}
                     className="absolute rounded-full"
                     style={{
-                      width: maxDim,
-                      height: maxDim,
-                      border: `${12 - ring * 3}px solid rgba(100, 210, 255, ${0.8 - ring * 0.2})`,
-                      boxShadow: `0 0 ${20 + ring * 10}px rgba(43, 129, 144, 0.5), inset 0 0 ${10 + ring * 5}px rgba(43, 129, 144, 0.3)`,
-                      animation: `ss-ripple-ring 1.2s ${ring * 0.12}s cubic-bezier(0.2, 0.8, 0.2, 1) both`,
+                      width: 150,
+                      height: 150,
+                      border: `1px solid rgba(100, 210, 255, ${0.8 - ring * 0.3})`,
+                      animation: `ss-ripple-ring 1.1s ${ring * 0.15}s cubic-bezier(0.2, 0.8, 0.2, 1) both`,
                       willChange: 'transform, opacity',
                     }}
                   />
